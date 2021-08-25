@@ -16,3 +16,5 @@
   - **ros2 run path_planning video_recording_node**
   This will save video into ~/home folder with the name -> output.avi
   if you perform twice it will replace the previous file
+
+  Video Recording tab also requires **ros-foxy-gazebo-plugins**
