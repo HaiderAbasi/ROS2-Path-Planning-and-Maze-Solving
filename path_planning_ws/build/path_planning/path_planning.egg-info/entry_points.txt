@@ -1,3 +1,0 @@
-[console_scripts]
-video_recording_node = path_planning.video_save:main
-
