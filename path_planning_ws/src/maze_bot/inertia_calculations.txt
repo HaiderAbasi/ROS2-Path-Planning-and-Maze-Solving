@@ -1,0 +1,83 @@
+
+-- Output by Meshlab after scalling by s factor = 10
+-- base link
+Mesh Volume is 6.647266
+Center of Mass is 0.150763 -0.062341 0.541140
+Inertia Tensor is :
+| 2.363697 -0.063884 -0.603107 |
+| -0.063884 8.414161 0.002012 |
+| -0.603107 0.002012 9.194274 |
+
+-- Dividing by volume 
+
+0.355     -0.0096 -0.0907
+-0.0096   1.265	   0	
+-0.0907	  0	  1.3832
+
+
+-- dividing by scale*2 -> (10*2)
+
+0.00355     -0.000096 -0.000907
+-0.000096   .01265	   0	
+-0.000907	  0	  0.013832
+
+
+-- multiplying with the mass in kgs (1) so answer is going to be same
+
+
+-----------------------------------------------------------------------------------------
+-- Meshlab Output for wheels when scaled by s = 10
+--Wheels
+
+Mesh Volume is 0.075380
+Center of Mass is 0.000000 -0.003880 0.000000
+Inertia Tensor is :
+| 0.014527 0.000000 -0.000005 |
+| 0.000000 0.028273 0.000000 |
+| -0.000005 0.000000 0.014528 |
+
+
+
+
+--- Dividing by volume
+0.192
+       0.3745
+		0.192
+
+-- dividing by scalled factor 
+
+0.00192
+       0.003745
+		0.00192
+
+-- multiplying with mass ( 0.75)
+
+0.001444223
+       0.00280875
+		0.001444223
+
+-------------------------------------------------------------
+Mesh Volume is 0.066425
+Center of Mass is -1.400198 -0.075000 -0.249368
+Inertia Tensor is :
+| 0.001722 -0.000000 -0.000003 |
+| -0.000000 0.001722 -0.000000 |
+| -0.000003 -0.000000 0.002647 |
+
+
+--- Dividing by volume
+0.0259
+       0.0259
+		0.039864458
+
+-- dividing by scalled factor 
+
+0.000259
+       0.000259
+		0.00039864458
+
+-- multiplying with mass ( 0.5)
+
+0.0001295
+       0.0001295
+		0.000199322
