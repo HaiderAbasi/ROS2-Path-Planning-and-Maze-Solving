@@ -145,7 +145,6 @@ Thats why we use xacros
     </joint>  
 
 
-
     <gazebo reference="base">
       <material>Gazebo/Black</material>
     </gazebo>
@@ -153,13 +152,12 @@ Thats why we use xacros
       <material>Gazebo/White</material>
     </gazebo>
     
-    <gazebo reference="wheel_right_link">
-      <material>Gazebo/White</material>
+    <gazebo reference="wheel_right">
+      <material>Gazebo/Orange</material>
     </gazebo>
-    <gazebo reference="wheel_left_link">
-      <material>Gazebo/White</material>
-    </gazebo> 
-
+    <gazebo reference="wheel_left">
+      <material>Gazebo/Orange</material>
+    </gazebo>  
 
     <gazebo>
       <plugin filename="libgazebo_ros_diff_drive.so" name="gazebo_base_controller">
@@ -177,6 +175,21 @@ Thats why we use xacros
   
       </plugin>
     </gazebo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   </robot>
