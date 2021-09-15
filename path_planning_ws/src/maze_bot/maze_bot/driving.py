@@ -1,6 +1,5 @@
 from geometry_msgs.msg import Twist
 from rclpy.node import Node 
-from cv_bridge import CvBridge 
 import rclpy 
 
 class Car_driver(Node):
@@ -13,7 +12,7 @@ class Car_driver(Node):
         
     def send_cmd_vel(self):
 
-        self.velocity.linear.x = 2.0        
+        self.velocity.linear.x = 1.0        
         self.velocity.angular.z = 0.5
         self.publisher.publish(self.velocity)
 

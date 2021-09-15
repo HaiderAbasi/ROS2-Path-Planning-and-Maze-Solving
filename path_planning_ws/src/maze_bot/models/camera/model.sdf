@@ -2,33 +2,32 @@
 <sdf version='1.7'>
   <model name='camera'>
     <link name='link_0'>
+
       <inertial>
-        <mass>0.00154354</mass>
+        <mass>0.00707571</mass>
         <inertia>
-          <ixx>1.14228e-06</ixx>
+          <ixx>1.66494e-05</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>1.62521e-05</iyy>
+          <iyy>0.000165453</iyy>
           <iyz>0</iyz>
-          <izz>1.6393e-05</izz>
+          <izz>0.000169817</izz>
         </inertia>
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
-      
-      <pose>-0 0 0 0 -0 0</pose>
-
+      <pose>-0 -0 0 0 -0 0</pose>
       <visual name='visual'>
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <box>
-            <size>0.349938 0.070624 0.062391</size>
+            <size>0.519789 0.133487 0.102067</size>
           </box>
         </geometry>
         <material>
           <lighting>1</lighting>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/Red</name>
           </script>
           <shader type='pixel'/>
         </material>
@@ -41,7 +40,7 @@
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <box>
-            <size>0.349938 0.070624 0.062391</size>
+            <size>0.519789 0.133487 0.102067</size>
           </box>
         </geometry>
         <surface>
@@ -91,19 +90,21 @@
         </surface>
       </collision>
 
-
-      <sensor name='camera' type='camera'>
-        <pose> 0 0 0 0 1.57 0</pose>
+    <sensor name='camera' type='camera'>
+      <pose> 0 0 0 0 1.57 0</pose>
         <always_on>1</always_on>
         <visualize>1</visualize>
         <update_rate>30</update_rate>
-        <camera name='prius_cam'>
+        
+        <camera name='Maze_Upper_Camera'>
           <horizontal_fov>1.0856</horizontal_fov>
+          
           <image>
             <width>1280</width>
             <height>720</height>
             <format>R8G8B8</format>
           </image>
+
           <clip>
             <near>0.03</near>
             <far>100</far>
@@ -116,6 +117,9 @@
         </camera>
         <plugin name='camera_driver' filename='libgazebo_ros_camera.so'/>
       </sensor>
+
+
+
 
     </link>
     <static>1</static>
