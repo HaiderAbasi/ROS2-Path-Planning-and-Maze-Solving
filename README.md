@@ -18,7 +18,7 @@
 ### Running the Launch Files
  - To run the Gazebo with maze and camera for recording run the following commands in order
 
-  - **ros2 launch  path_planning world_gazebo.launch.py**
+  - **ros2 launch maze_bot maze_world.launch.py**
   - **ros2 run path_planning video_recording_node**
   This will save video into ~/home folder with the name -> output.avi
   if you perform twice it will replace the previous file
