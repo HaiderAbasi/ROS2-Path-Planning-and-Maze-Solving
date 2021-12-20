@@ -3,7 +3,7 @@ import cv2
 from rclpy.node import Node 
 from cv_bridge import CvBridge 
 from sensor_msgs.msg import Image 
-
+import os
 
 class Video_get(Node):
   def __init__(self):
@@ -11,7 +11,8 @@ class Video_get(Node):
     ## Created a subscriber 
     self.subscriber = self.create_subscription(Image,'/camera/image_raw',self.process_data,10)
     ## setting for writing the frames into a video
-    self.out = cv2.VideoWriter('/home/luqman/output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1280,720))
+    vid_path = os.path.join(os.getcwd(),"output.avi")
+    self.out = cv2.VideoWriter(vid_path,cv2.VideoWriter_fourcc('M','J','P','G'), 30, (1280,720))
     self.bridge = CvBridge() # converting ros images to opencv data
  
   def process_data(self, data): 
