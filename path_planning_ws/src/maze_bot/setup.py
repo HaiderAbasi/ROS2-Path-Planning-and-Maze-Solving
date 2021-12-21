@@ -29,6 +29,7 @@ setup(
             'driving_node = maze_bot.driving:main' ,
             'video_recorder = maze_bot.video_saver:main',
             'maze_solver = maze_bot.maze_solver:main',
+            'inculcate = maze_bot.inculcate:main',
         ],
     },
 )
