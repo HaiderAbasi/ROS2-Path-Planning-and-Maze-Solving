@@ -1,10 +1,7 @@
 import cv2
 import numpy as np
 
-#connected_left = False
-#connected_upleft = False
-#connected_up = False
-#connected_up_right = False
+debug_mapping = False
 
 class Graph():
     def __init__(self):
@@ -147,14 +144,14 @@ class maze_converter():
         print("----------------------) CONNECTED >> {} << ".format(case))
         maze_connect = cv2.line(maze_connect,curr_node,that_node,color,1)
         cv2.imshow("nodes Conected", maze_connect)
-        cv2.waitKey(0)                    
-        maze_connect = cv2.line(maze_connect,curr_node,that_node,(255,255,255),1)
+        if debug_mapping:
+            cv2.waitKey(0)                    
+            maze_connect = cv2.line(maze_connect,curr_node,that_node,(255,255,255),1)
 
 
 
 
-    def connect_left(self,maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case):
-        #global connected_left,connected_upleft,connected_up,connected_up_right
+    def connect_neighbors(self,maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case):
         # Check if there is a path surrounding our node
         if (maze[node_row-step_up][node_col-step_l]>0):
             # If there is one --> Check if that path contains a node 
@@ -166,30 +163,28 @@ class maze_converter():
                 self.Graph.add_vertex((node_row,node_col),(node_row-step_up,node_col-step_l),connection_case,cost)
                 self.Graph.add_vertex((node_row-step_up,node_col-step_l),(node_row,node_col),case,cost)
                 print("\nConnected {} to {} with Case [step_l,step_up] = [ {} , {} ] & Cost -> {}".format((node_row,node_col),(node_row-step_up,node_col-step_l),step_l,step_up,cost))            
-                #print( " Total nodes connected to {} = {}".format((node_row,node_col),self.Graph.graph[(node_row,node_col)]) )
+
                 if not self.connected_left:
                     self.display_connected_nodes(maze_connect,(node_col,node_row),(node_col-step_l,node_row-step_up),"LEFT",(0,0,255))
                     self.connected_left = True
                     step_l = 1
                     step_up = 1
-                    self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                    self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
                 elif not self.connected_upleft:
                     self.display_connected_nodes(maze_connect,(node_col,node_row),(node_col-step_l,node_row-step_up),"UPLEFT",(0,128,255))
                     self.connected_upleft = True
                     step_l = 0
                     step_up = 1
-                    self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                    self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
                 elif not self.connected_up:
                     self.display_connected_nodes(maze_connect,(node_col,node_row),(node_col-step_l,node_row-step_up),"UP",(0,255,0))
                     self.connected_up = True
                     step_l = -1
                     step_up = 1                    
-                    self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
-                    #return None
+                    self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
                 elif not self.connected_up_right:
                     self.display_connected_nodes(maze_connect,(node_col,node_row),(node_col-step_l,node_row-step_up),"UPRIGHT",(255,0,0))
                     self.connected_up_right = True
-                    #return None
 
             if not self.connected_up_right:
                 if not self.connected_left:
@@ -203,24 +198,22 @@ class maze_converter():
                     step_l-=1
                     step_up+=1
 
-                self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
         else:
             if not self.connected_left:
                 # Basically there is a wall on left so just start looking up lft:)
                 self.connected_left = True
-                #self.Graph.displaygraph()
                 # Looking upleft now
                 step_l = 1
                 step_up = 1
-                self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
 
             elif not self.connected_upleft:
                 # Basically there is a wall up lft so just start looking up :)
                 self.connected_upleft = True
                 step_l = 0
                 step_up = 1
-                #self.Graph.displaygraph()
-                self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
                 
 
             elif not self.connected_up:
@@ -228,24 +221,19 @@ class maze_converter():
                 self.connected_up = True
                 step_l = -1
                 step_up = 1
-                #self.Graph.displaygraph()
-                self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
+                self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
 
             elif not self.connected_up_right:
                 # Basically there is a wall above so just start looking up-right :)
                 self.connected_up_right = True
                 step_l = 0
                 step_up = 0                
-                #self.Graph.displaygraph()
                 return
 
 
-
-            #cv2.waitKey(0)
         
 
     def connect_nodes(self,maze,maze_connect,node_row,node_col,case):
-        #global self.connected_left,self.connected_upleft,self.connected_up,self.connected_up_right
         conn_nodes = 0
         #Start by looking left
         step_l = 1
@@ -256,8 +244,7 @@ class maze_converter():
         self.connected_up = False
         self.connected_up_right = False
         
-        self.connect_left(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
-        #cv2.waitKey(0)
+        self.connect_neighbors(maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case)
 
 
 
@@ -277,11 +264,16 @@ class maze_converter():
         # Looping over each pixel (car_size_as_a_unit) from left to right ==> bottom to top
         cv2.namedWindow("maze_bgr",cv2.WINDOW_FREERATIO)
         cv2.namedWindow("nodes Conected",cv2.WINDOW_FREERATIO)
-       
+        if not debug_mapping:
+            maze_connect = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
+        else:
+            maze_connect = maze.copy()
+            
         for row in range(rows):
                 print("\n\nAnalyzing Row ( {} )\n\n".format(row))
                 for col in range(cols):
-                        maze_connect = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
+                        if debug_mapping:
+                            maze_connect = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
 
                         # If we spot a path paint it red :)
                         if (maze[row][col]==255):
@@ -317,14 +309,13 @@ class maze_converter():
                                 #print("Right now we are looking at \n" ,crop)
                                 # Green color
                                 maze_bgr[row][col] = (0,0,255)
-                                #maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (0,0,255),2)
+                                maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (0,0,255),2)
                                 cv2.imshow("maze_bgr",maze_bgr)
                                 self.Graph.add_vertex((row,col),case="_DeadEnd_")
                                 print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                 self.connect_nodes(maze,maze_connect, row,col,case="_DeadEnd_")
                                 print("\n ################# CONNECTED NODES ################## \n")
-                                #self.Graph.displaygraph()
-                                #cv2.waitKey(0)
+
                             # Check if it is either a Turn or just an ordinary path
                             #elif not ( (top or lft or btm) and (lft or btm or rgt) and(btm or rgt or top) and (rgt or top or lft)     ):
                             elif (paths==2):
@@ -339,19 +330,15 @@ class maze_converter():
                                     #print("Right now we are looking at [path ==2] \n" ,crop)
                                     # lie on opposite [path]
                                     # Orange color
-                                    #print(">>>>> MAZAY MAZAY<<<<< ")
                                     maze_bgr[row][col] = (255,0,0)
                                     self.Graph.add_vertex((row,col),case="_Turn_")
-                                    #self.Graph.displaygraph()
 
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_Turn_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    #print("ConnectedCase [ {} , {} = {} ]".format(row,col,self.Graph.graph[(row,col)]))
-                                    #maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (255,0,0),2)
+                                    maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (255,0,0),2)
                                     turns+=1
                                     cv2.imshow("maze_bgr",maze_bgr)
-                                    #cv2.waitKey(0)
                             elif (paths>2):
                                 if (paths ==3):
                                     crop = maze[row-1:row+2,col-1:col+2]
@@ -361,11 +348,7 @@ class maze_converter():
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_3-Junc_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    #print(">>>>> MAZAY MAZAY MAZAY <<<<< ")
-                                    #maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (144,140,255),2)
-                                    #maze_bgr = self.triangle(maze_bgr, (col,row), 20,(144,140,255))
-                                    #cv2.imshow("maze_bgr",maze_bgr)
-                                    #cv2.waitKey(0)
+                                    maze_bgr = self.triangle(maze_bgr, (col,row), 20,(144,140,255))
                                     junc_3+=1
                                 else:
                                     crop = maze[row-1:row+2,col-1:col+2]
@@ -375,18 +358,13 @@ class maze_converter():
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_4-Junc_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    #print(">>>>> MAZAY MAZAY MAZAY MAZAY <<<<< ")
-                                    #cv2.rectangle(maze_bgr,(col-20,row-20) , (col+20,row+20), (255,140,144),2)
-                                    cv2.imshow("maze_bgr",maze_bgr)
-                                    #cv2.waitKey(0)
+                                    cv2.rectangle(maze_bgr,(col-20,row-20) , (col+20,row+20), (255,140,144),2)
                                     junc_4+=1
+        
         print("\nInterest Points !!! \n[ Turns , 3_Junc , 4_Junc ] [ ",turns," , ",junc_3," , ",junc_4," ] \n")
         self.Graph.displaygraph()
-        #crop_BGR = maze[40:120,160:320]
-        #print("Right now we are looking at [crop_BGR] \n")
-        #cv2.namedWindow("crop_BGR",cv2.WINDOW_FREERATIO)
-        #cv2.imshow("crop_BGR",crop_BGR)        
-        cv2.waitKey(0)                                   
+        if debug_mapping:      
+            cv2.waitKey(0)                                   
 
     def graphify(self,extracted_maze,unit_dim):
 
