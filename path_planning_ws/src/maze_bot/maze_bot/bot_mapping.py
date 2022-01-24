@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
 
+draw_intrstpts = False
 debug_mapping = False
 
 class Graph():
     def __init__(self):
         self.graph = {}
+        self.start = 0
+        self.end = 0
 
 
     def add_vertex(self,vertex,neighbor = None,case = None,cost = None):
@@ -24,8 +27,108 @@ class Graph():
             self.graph[vertex]["case"]= case
             #self.graph[vertex][neighbor]= {}
             self.displaygraph()
+
+    def get_paths(self,start,end,path=[]):
         
- 
+        path = path + [start]
+        
+        if start == end:
+            return [path]
+        if start not in self.graph.keys():
+            return []
+
+        # List to store all possible paths from point A to B
+        paths = []
+
+        # Retrieve all connections for that one damn node you are looking it
+        for node in self.graph[start].keys():
+            # Checking if not already traversed and not a "case" key
+            if ( (node not in path) and (node!="case") ):
+                new_paths = self.get_paths(node, end,path)
+                for p in new_paths:
+                    paths.append(p)
+        
+        return paths
+    
+    def get_path(self,start,end,path=[]):
+        
+        path = path + [start]
+        
+        if start == end:
+            return [path]
+        if start not in self.graph.keys():
+            return []
+
+        # List to store all possible paths from point A to B
+        paths = []
+
+        # Retrieve all connections for that one damn node you are looking it
+        for node in self.graph[start].keys():
+            # No path found yet
+            if (paths==[]):
+                # Checking if not already traversed and not a "case" key
+                if ( (node not in path) and (node!="case") ):
+                    new_paths = self.get_path(node, end,path)
+                    for p in new_paths:
+                        paths.append(p)
+        
+        return paths
+
+    def get_path_cost(self,start,end,path=[],cost=0,trav_cost=0):
+        
+        path = path + [start]
+        cost = cost + trav_cost
+
+        if start == end:
+            return [path],[cost]
+        if start not in self.graph.keys():
+            return [],0
+
+        # List to store all possible paths from point A to B
+        paths = []
+        costs = []
+        # Retrieve all connections for that one damn node you are looking it
+        for node in self.graph[start].keys():
+            # No path found yet
+            if (paths==[]):
+                # Checking if not already traversed and not a "case" key
+                if ( (node not in path) and (node!="case") ):
+
+                    new_paths,new_costs = self.get_path_cost(node, end,path,cost,self.graph[start][node]['cost'])
+                    for p in new_paths:
+                        paths.append(p)
+                    for c in new_costs:
+                        costs.append(c)
+        
+        return paths,costs
+
+    def get_paths_cost(self,start,end,path=[],cost=0,trav_cost=0):
+        
+        path = path + [start]
+        cost = cost + trav_cost
+
+        if start == end:
+            return [path],[cost]
+        if start not in self.graph.keys():
+            return [],0
+
+        # List to store all possible paths from point A to B
+        paths = []
+        costs = []
+        # Retrieve all connections for that one damn node you are looking it
+        for node in self.graph[start].keys():
+            # Checking if not already traversed and not a "case" key
+            if ( (node not in path) and (node!="case") ):
+
+                new_paths,new_costs = self.get_paths_cost(node, end,path,cost,self.graph[start][node]['cost'])
+                for p in new_paths:
+                    paths.append(p)
+                for c in new_costs:
+                    costs.append(c)
+        
+        return paths,costs
+
+  
     def displaygraph(self):
         for key,value in self.graph.items():
             print(" key {} has value {} ".format(key,value))
@@ -39,6 +142,11 @@ class maze_converter():
 
         self.Graph = Graph()
         self.graphified = False
+        self.maze = 0
+
+        self.img_shortest_path = np.zeros((100,100,3))
+        self.shortest_path = 0
+        self.shortst_path_found = False
 
         self.connected_left = False
         self.connected_upleft = False
@@ -148,7 +256,33 @@ class maze_converter():
             cv2.waitKey(0)                    
             maze_connect = cv2.line(maze_connect,curr_node,that_node,(255,255,255),1)
 
+    @staticmethod
+    def cords_to_pts(cords):
+      return [cord[::-1] for cord in cords]
 
+    def draw_shortest_path(self,maze,shortest_path_pts):
+        
+        maze_bgr = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
+
+        rang = list(range(0,254,25))
+        
+        depth = maze.shape[0]
+        for i in range(len(shortest_path_pts)-1):
+            per_depth = (shortest_path_pts[i][1])/depth
+
+            # Blue : []   [0 1 2 3 251 255 251 3 2 1 0] 0-depthperc-0
+            # Green :[]     depthperc
+            # Red :  [] 100-depthperc
+            color = ( 
+                      int(255 * (abs(per_depth+(-1*(per_depth>0.5)))*2) ),
+                      int(255 * per_depth),
+                      int(255 * (1-per_depth))
+                    )
+            cv2.line(maze_bgr,shortest_path_pts[i] , shortest_path_pts[i+1], color)
+        cv2.namedWindow("maze (Shortest Path)",cv2.WINDOW_FREERATIO)
+        cv2.imshow("maze (Shortest Path)", maze_bgr)
+        self.img_shortest_path = maze_bgr
+        
 
 
     def connect_neighbors(self,maze,maze_connect,node_row,node_col,step_l,step_up,conn_nodes,case):
@@ -288,14 +422,23 @@ class maze_converter():
                                     maze_bgr[row][col] = (0,128,255)
                                     cv2.imshow("maze_bgr",maze_bgr)
                                     self.Graph.add_vertex((row,col),case="_Start_")
-                                    print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
-                                    self.connect_nodes(maze,maze_connect, row,col,case="_Start_")
-                                    print("\n ################# CONNECTED NODES ################## \n")
+                                    self.Graph.start = (row,col)
+                                    # Bug Found : Top Node Should not look for nodes as their is nothing there
+                                    # In case it does look for node and index goes in neg (Wraps around)
+                                    # It will loop the whole mat until it can't move anymore
+                                    # Interesting consideration -> Entry and Exit should be at one point
+                                    #                           -> All other regions should be walled by maze
+                                    #                              on exterior
+                                    #                           -> Don't look for neighbors for Start Node from itself
+                                    #print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
+                                    #self.connect_nodes(maze,maze_connect, row,col,case="_Start_")
+                                    #print("\n ################# CONNECTED NODES ################## \n")
                                     #self.Graph.displaygraph()
                                     #cv2.waitKey(0)
                                 else:
                                     # Green color
                                     maze_bgr[row][col] = (0,255,0)
+                                    self.Graph.end = (row,col)
                                     cv2.imshow("maze_bgr",maze_bgr)
                                     self.Graph.add_vertex((row,col),case="_End_")
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
@@ -309,7 +452,8 @@ class maze_converter():
                                 #print("Right now we are looking at \n" ,crop)
                                 # Green color
                                 maze_bgr[row][col] = (0,0,255)
-                                maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (0,0,255),2)
+                                if draw_intrstpts:
+                                    maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (0,0,255),2)
                                 cv2.imshow("maze_bgr",maze_bgr)
                                 self.Graph.add_vertex((row,col),case="_DeadEnd_")
                                 print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
@@ -336,7 +480,8 @@ class maze_converter():
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_Turn_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (255,0,0),2)
+                                    if draw_intrstpts:
+                                        maze_bgr= cv2.circle(maze_bgr, (col,row), 10, (255,0,0),2)
                                     turns+=1
                                     cv2.imshow("maze_bgr",maze_bgr)
                             elif (paths>2):
@@ -348,7 +493,9 @@ class maze_converter():
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_3-Junc_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    maze_bgr = self.triangle(maze_bgr, (col,row), 20,(144,140,255))
+                                    if draw_intrstpts:
+                                        maze_bgr = self.triangle(maze_bgr, (col,row), 20,(144,140,255))
+
                                     junc_3+=1
                                 else:
                                     crop = maze[row-1:row+2,col-1:col+2]
@@ -358,7 +505,8 @@ class maze_converter():
                                     print("\n >>>>>>>>>>>>>>>>> CONNECTING NODES <<<<<<<<<<<<<<<<< \n")
                                     self.connect_nodes(maze,maze_connect, row,col,case="_4-Junc_")
                                     print("\n ################# CONNECTED NODES ################## \n")
-                                    cv2.rectangle(maze_bgr,(col-20,row-20) , (col+20,row+20), (255,140,144),2)
+                                    if draw_intrstpts:
+                                        cv2.rectangle(maze_bgr,(col-20,row-20) , (col+20,row+20), (255,140,144),2)
                                     junc_4+=1
         
         print("\nInterest Points !!! \n[ Turns , 3_Junc , 4_Junc ] [ ",turns," , ",junc_3," , ",junc_4," ] \n")
@@ -389,10 +537,35 @@ class maze_converter():
             extracted_maze_cropped_5pix = cv2.cvtColor(extracted_maze_cropped_5pix, cv2.COLOR_GRAY2BGR)
             extracted_maze_cropped_5pix[thinned_cropped_5pix>0] = (0,255,255)
             cv2.imshow('extracted_maze_cropped_5pix (Track Overlayed)', extracted_maze_cropped_5pix)
-
+            
             self.one_pass(thinned_cropped_5pix)
             # Graph has been retrieved, Now use it to find paths from start to End
+            
             self.graphified = True
+            # Saving line_maze to be utilized later
+            self.maze = thinned_cropped_5pix
+
         else:
-            print("Party")
+
+            if not self.shortst_path_found:
+                #start = (0,6)
+                #end   = (0,6)
+                #print("\nPath from {} to {} is {}\n".format(start,end,self.Graph.get_path(start,end)))
+                #cv2.waitKey(0)
+                #start = (1000,200)
+                #print("\nPath from {} to {} is {}\n".format(start,end,self.Graph.get_path(start,end)))
+                #cv2.waitKey(0)
+                paths_N_costs = self.Graph.get_paths_cost(self.Graph.start,self.Graph.end)
+                paths = paths_N_costs[0]
+                costs = paths_N_costs[1]
+                min_cost = min(costs)
+                shortest_path = paths[costs.index(min_cost)]
+                shortest_path_pts = self.cords_to_pts(shortest_path)
+                print("shortest_path_pts = {}".format(shortest_path_pts))
+                self.draw_shortest_path(self.maze,shortest_path_pts)
+                #cv2.waitKey(0)
+
+                self.shortest_path = shortest_path_pts
+                self.shortst_path_found = True
+
 

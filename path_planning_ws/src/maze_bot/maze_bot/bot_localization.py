@@ -11,6 +11,14 @@ class bot_localizer():
         self.is_base_unit_extracted = False
         self.is_maze_extracted = False
 
+        # Transfomation(Crop + Rotated) Variables
+        self.orig_X = 0
+        self.orig_Y = 0
+        self.orig_rows = 0
+        self.orig_cols = 0
+        self.orig_rot = 0
+        self.rot_mat = 0
+
         # Parameters storing bg information for using bg-subtraction
         self.bg_model = 0
         self.filled_maze_withoutCar = 0
@@ -18,6 +26,7 @@ class bot_localizer():
         # Unit Dimension for each node in maze
         self.unit_dim = 0
         self.extracted_maze = 0 
+        self.loc_car = 0
 
 
     def extract_bg(self,frozen_maze):
@@ -58,6 +67,18 @@ class bot_localizer():
         [X, Y, W, H] = cv2.boundingRect(hull)
         temp = self.filled_maze_withoutCar
         temp = temp[Y:Y+H, X:X+W]
+        self.orig_X = X
+        self.orig_Y = Y
+        self.orig_rows = H
+        self.orig_cols = W
+        # Rotation Matrix
+        self.orig_rot = 90 # 90 degree counterClockwise
+        self.rot_mat = np.array(
+                                [
+                                 [ np.cos(np.deg2rad(self.orig_rot)) , np.sin(np.deg2rad(self.orig_rot))],
+                                 [-np.sin(np.deg2rad(self.orig_rot)) , np.cos(np.deg2rad(self.orig_rot))]
+                                ]
+                               )
         #================================= Testing if decreasing convexhull size would eliminate faulty boundary selection ==============
         # >>>>> It did not !!! Entry and exit point still pose a problem
         #per_change = -2 # 2 percent decrease in size 
@@ -78,6 +99,44 @@ class bot_localizer():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+    @staticmethod
+    def get_centroid(cnt):
+        M = cv2.moments(cnt)
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        return (cy,cx)
+
+    def get_car_loc(self,car_contour,img_loc_car):
+
+        bot_center_pt = self.get_centroid(car_contour)
+
+        # point --> (col(x),row(y)) XY-Convention For Rotation And Translated To MazeCrop (Origin)
+        bot_center_ = np.array( [bot_center_pt[1]-self.orig_X, bot_center_pt[0]-self.orig_Y] )
+        
+        # Rot Matrix (For Normal XY Convention Around Z axis = [cos0 -sin0]) But for Image convention [ cos0 sin0]
+        #                                                      [sin0  cos0]                           [-sin0 cos0]
+        rot_center = (self.rot_mat @ bot_center_.T).T# [x,y]
+        
+        # Translating Origin If neccasary (To get whole image)
+        rot_cols = self.orig_rows
+        rot_rows = self.orig_cols
+        rot_center[0] = rot_center[0] + (rot_cols * (rot_center[0]<0) )  
+        rot_center[1] = rot_center[1] + (rot_rows * (rot_center[1]<0) )   
+        
+        img_loc_car = cv2.cvtColor(img_loc_car, cv2.COLOR_GRAY2BGR)
+        img_loc_car = cv2.circle(img_loc_car,tuple(bot_center_),3,(255,128,0),-1)
+        cv2.imshow("img_loc_car",img_loc_car)
+
+        img_loc_car_crop = img_loc_car[self.orig_Y:self.orig_Y+self.orig_rows,self.orig_X:self.orig_X+self.orig_cols]
+        img_loc_car_crop_rot = cv2.rotate(img_loc_car_crop, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+        self.loc_car = (int(rot_center[0]),int(rot_center[1]))
+
+        img_loc_car_crop_rot = cv2.circle(img_loc_car_crop_rot,self.loc_car,3,(0,0,255),-1)
+
+        cv2.imshow("img_loc_car_crop_rot",img_loc_car_crop_rot)
+        #cv2.waitKey(0)
+
     def localize_bot(self,curr_frame,frame_disp):
 
         if not self.is_bg_extracted:
@@ -91,6 +150,9 @@ class bot_localizer():
         change_filled = change_bin.copy()
         imfill(change_filled)
         car_isolated,cnt_largest = ret_largest_obj(change_bin)
+
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>EXTRACTING CAR LOCATIOn>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        self.get_car_loc(cnt_largest,car_isolated)
 
         # Extracting circular bounding roi
         car_circular_roi = np.zeros_like(car_isolated)
@@ -106,7 +168,7 @@ class bot_localizer():
         car_unit = cv2.rectangle(car_unit, (X-per_ext,Y-per_ext), ((X+W+per_ext),(Y+H+per_ext)), 255,-1)
         prev_circleNCar = cv2.bitwise_or(car_circular_roi, car_isolated)
         car_unit = cv2.bitwise_xor(car_unit, prev_circleNCar)
-
+        # 1 pixel = 0.022988506m
         # Extracting Base Unit ==> (required for conversion to data)
         if not self.is_base_unit_extracted:
              self.unit_dim = W + per_ext
@@ -122,3 +184,7 @@ class bot_localizer():
         cv2.imshow("change_filled", change_filled) # displaying what is being recorded
         cv2.imshow("car_isolated", car_isolated) # displaying what is being recorded
         cv2.imshow("car_localized", frame_disp) # displaying what is being recorded
+
+
+        
+        
