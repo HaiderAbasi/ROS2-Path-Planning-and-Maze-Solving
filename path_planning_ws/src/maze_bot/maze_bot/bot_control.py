@@ -1,5 +1,6 @@
 from math import pow , atan2,sqrt , degrees,asin
 from numpy import interp
+import numpy as np
 import cv2
 
 class Control:
@@ -71,55 +72,7 @@ class Control:
             self.car_angle_s = yaw_deg + 360
         
         #print("Car Angle (Simulation) = {}".format(self.car_angle_s))
-      
-    
-    def goal_movement_(self,path,car_loc,velocity_obj,publisher_obj):
-        
-        error_x = self.goal_pose_x - car_loc[0]
-        error_y = self.goal_pose_y - car_loc[1]
 
-        distance_to_goal = sqrt(pow( (error_x),2 ) + pow( (error_y),2 ) )
-        angle_to_goal = degrees(atan2(error_y,error_x))
-
-        if(self.car_angle<0):
-            angle_to_turn = angle_to_goal + self.car_angle
-        else:
-            angle_to_turn = angle_to_goal - self.car_angle
-
-        velocity = self.bound(0.0,0.5,distance_to_goal)
-
-        Angle = interp(angle_to_turn,[-180,180],[2,-2])
-
-        print("angle to goal = {} Angle_to_turn = {} Angle[Sim] {}".format(angle_to_goal,angle_to_turn,abs(Angle)))
-        print("self.goal_not_reached_flag = ",self.goal_not_reached_flag)
-        print("distance_to_goal = ",distance_to_goal)
-
-        if (distance_to_goal>=2):
-            velocity_obj.angular.z = Angle
-        if abs(Angle) < 0.3:
-            velocity_obj.linear.x = velocity
-        
-        #self.get_logger().info('Error_X: {:.2f} Error_Y: {:.2f} DistanceTG: {:.2f} Turning_goal: {:.2f} Velocity: {:.2f}'  . format(error_x,error_y,distance_to_goal,angle_to_turn,velocity))
-
-        if self.goal_not_reached_flag:
-            publisher_obj.publish(velocity_obj)
-
-        if (distance_to_goal<=2):
-
-            velocity_obj.angular.z = 0.0
-            if self.goal_not_reached_flag:
-                publisher_obj.publish(velocity_obj)
-            
-            if self.path_iter==(len(path)):
-                p = 1
-                #pass
-                #self.goal_not_reached_flag=False
-            else:
-                print("Current Goal (x,y) = ( {} , {} )".format(path[self.path_iter][0],path[self.path_iter][1]))
-                self.path_iter += 1
-
-            self.goal_pose_x = 290
-            self.goal_pose_y = 160
 
     def goal_movement(self,path,car_loc,velocity_obj,publisher_obj):
         
@@ -129,7 +82,7 @@ class Control:
         angle_to_turn = angle_to_goal - self.car_angle
 
         #velocity = interp(distance_to_goal,[0,100],[0.1,1])
-        velocity = interp(distance_to_goal,[0,100],[0.1,1.5])
+        velocity = interp(distance_to_goal,[0,100],[0.2,1.5])
 
         Angle = interp(angle_to_turn,[-360,360],[-4,4])
         
@@ -148,13 +101,13 @@ class Control:
             velocity_obj.linear.x = 0.02
         else:
             velocity_obj.linear.x = 0.0
-
         
 
-        if self.goal_not_reached_flag:
+        if (self.goal_not_reached_flag) or (distance_to_goal<=1):
             #pass
             publisher_obj.publish(velocity_obj)
 
+        print("len(path) = ( {} ) , path_iter = ( {} )".format(len(path),self.path_iter) )
         if (distance_to_goal<=2):
             #pass
             velocity_obj.linear.x = 0.0
@@ -163,19 +116,13 @@ class Control:
                 #pass
                 publisher_obj.publish(velocity_obj)
 
-            self.path_iter += 1
-            if self.path_iter==(len(path)):
+            if self.path_iter==(len(path)-1):
                 self.goal_not_reached_flag=False
             else:
+                self.path_iter += 1
                 print("Current Goal (x,y) = ( {} , {} )".format(path[self.path_iter][0],path[self.path_iter][1]))
                 self.goal_pose_x = path[self.path_iter][0]
                 self.goal_pose_y = path[self.path_iter][1]
-
-
-            #self.goal_not_reached_flag=False
-            #self.goal_pose_x = 290
-            #self.goal_pose_y = 160
-
 
 
 
@@ -217,3 +164,74 @@ class Control:
             velocity_obj.linear.x = 1.0        
             publisher_obj.publish(velocity_obj)
             self.count+=1 
+
+    @staticmethod
+    def bck_to_orig(pt,transform_arr,rot_mat):
+
+        st_col = transform_arr[0] # cols X
+        st_row = transform_arr[1] # rows Y
+        tot_cols = transform_arr[2] # total_cols / width W
+        tot_rows = transform_arr[3] # total_rows / height H
+        
+        # point --> (col(x),row(y)) XY-Convention For Rotation And Translated To MazeCrop (Origin)
+        #pt_array = np.array( [pt[0]+st_col, pt[1]+st_row] )
+        pt_array = np.array( [pt[0], pt[1]] )
+        
+        # Rot Matrix (For Normal XY Convention Around Z axis = [cos0 -sin0]) But for Image convention [ cos0 sin0]
+        #                                                      [sin0  cos0]                           [-sin0 cos0]
+        rot_center = (rot_mat @ pt_array.T).T# [x,y]
+        
+        # Translating Origin If neccasary (To get whole image)
+        rot_cols = tot_cols#tot_rows
+        rot_rows = tot_rows#tot_cols
+        rot_center[0] = rot_center[0] + (rot_cols * (rot_center[0]<0) ) + st_col  
+        rot_center[1] = rot_center[1] + (rot_rows * (rot_center[1]<0) ) + st_row 
+        return rot_center
+
+
+    def nav_path(self,loc_car,shortest_path,img_shortest_path_,publisher_obj,velocity_obj,bot_localizer_obj,frame_disp):
+
+        Doing_pt = 0
+        Done_pt = 0
+
+        path_i = self.path_iter
+        path = shortest_path
+
+        if (type(path)!=int):
+            if (self.path_iter==0):
+                self.goal_pose_x = shortest_path[path_i][0]
+                self.goal_pose_y = shortest_path[path_i][1]
+
+        self.move(shortest_path,loc_car,velocity_obj,publisher_obj)
+        
+        img_shortest_path = (img_shortest_path_).copy()
+        # Car Loc
+        img_shortest_path = cv2.circle(img_shortest_path, loc_car, 3, (0,0,255))
+
+        if ( (type(path)!=int) and ( path_i!=(len(path)-1) ) ):
+            curr_goal = path[path_i]
+            # Mini Goal Completed
+            if path_i!=0:
+                img_shortest_path = cv2.circle(img_shortest_path, path[path_i-1], 3, (0,255,0))
+                Done_pt = path[path_i-1]
+            # Mini Goal Completing   
+            img_shortest_path = cv2.circle(img_shortest_path, curr_goal, 3, (0,140,255))
+            Doing_pt = curr_goal
+        else:
+            # Only Display Final Goal completed
+            img_shortest_path = cv2.circle(img_shortest_path, path[path_i], 5, (0,255,0))
+            Done_pt = path[path_i]
+
+        if Doing_pt!=0:
+            Doing_pt = self.bck_to_orig(Doing_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
+            frame_disp = cv2.circle(frame_disp, (int(Doing_pt[0]),int(Doing_pt[1])), 3, (0,140,255))            
+            
+        if Done_pt!=0:
+            Done_pt = self.bck_to_orig(Done_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
+            if ( (type(path)!=int) and ( path_i!=(len(path)-1) ) ):
+                frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 3, (0,255,0))   
+            else:
+                frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 5, (0,255,0))   
+        print("[Doing_pt & Done_pt] ImgSize = [ {} & {} ] ({}) ".format(Doing_pt,Done_pt,frame_disp.shape))         
+        
+        cv2.imshow("maze (Shortest Path + Car Loc)",img_shortest_path)

@@ -17,6 +17,7 @@ class bot_localizer():
         self.orig_rows = 0
         self.orig_cols = 0
         self.orig_rot = 0
+        self.transform_arr = []
         self.rot_mat = 0
 
         # Parameters storing bg information for using bg-subtraction
@@ -71,12 +72,19 @@ class bot_localizer():
         self.orig_Y = Y
         self.orig_rows = H
         self.orig_cols = W
+        self.transform_arr = [X,Y,W,H]
         # Rotation Matrix
         self.orig_rot = 90 # 90 degree counterClockwise
         self.rot_mat = np.array(
                                 [
                                  [ np.cos(np.deg2rad(self.orig_rot)) , np.sin(np.deg2rad(self.orig_rot))],
                                  [-np.sin(np.deg2rad(self.orig_rot)) , np.cos(np.deg2rad(self.orig_rot))]
+                                ]
+                               )
+        self.rot_mat_rev = np.array(
+                                [
+                                 [ np.cos(np.deg2rad(-self.orig_rot)) , np.sin(np.deg2rad(-self.orig_rot))],
+                                 [-np.sin(np.deg2rad(-self.orig_rot)) , np.cos(np.deg2rad(-self.orig_rot))]
                                 ]
                                )
         #================================= Testing if decreasing convexhull size would eliminate faulty boundary selection ==============

@@ -143,6 +143,7 @@ class maze_converter():
         self.Graph = Graph()
         self.graphified = False
         self.maze = 0
+        self.mz_crp = 5
 
         self.img_shortest_path = np.zeros((100,100,3))
         self.shortest_path = 0
@@ -260,7 +261,7 @@ class maze_converter():
     def cords_to_pts(cords):
       return [cord[::-1] for cord in cords]
 
-    def draw_shortest_path(self,maze,shortest_path_pts):
+    def draw_shortest_path(self,maze,shortest_path_pts,method="DFS"):
         
         maze_bgr = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
 
@@ -279,8 +280,10 @@ class maze_converter():
                       int(255 * (1-per_depth))
                     )
             cv2.line(maze_bgr,shortest_path_pts[i] , shortest_path_pts[i+1], color)
-        cv2.namedWindow("maze (Shortest Path)",cv2.WINDOW_FREERATIO)
-        cv2.imshow("maze (Shortest Path)", maze_bgr)
+
+        img_str = "maze (Shortest Path) [" +method +"]"
+        cv2.namedWindow(img_str,cv2.WINDOW_FREERATIO)
+        cv2.imshow(img_str, maze_bgr)
         self.img_shortest_path = maze_bgr
         
 
@@ -531,9 +534,13 @@ class maze_converter():
             cv2.imshow('thinned Image2', thinned)
 
 
-            thinned_cropped_5pix = thinned[5:thinned.shape[0]-5,5:thinned.shape[1]-5]
+            thinned_cropped_5pix = thinned[self.mz_crp:thinned.shape[0]-self.mz_crp,
+                                           self.mz_crp:thinned.shape[1]-self.mz_crp]
             cv2.imshow('thinned_cropped_5pix', thinned_cropped_5pix)
-            extracted_maze_cropped_5pix = extracted_maze[5:extracted_maze.shape[0]-5,5:extracted_maze.shape[1]-5]
+            
+            extracted_maze_cropped_5pix = extracted_maze[self.mz_crp:extracted_maze.shape[0]-self.mz_crp,
+                                                         self.mz_crp:extracted_maze.shape[1]-self.mz_crp]
+            
             extracted_maze_cropped_5pix = cv2.cvtColor(extracted_maze_cropped_5pix, cv2.COLOR_GRAY2BGR)
             extracted_maze_cropped_5pix[thinned_cropped_5pix>0] = (0,255,255)
             cv2.imshow('extracted_maze_cropped_5pix (Track Overlayed)', extracted_maze_cropped_5pix)
