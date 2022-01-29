@@ -145,19 +145,55 @@ Thats why we use xacros
     </joint>  
 
 
-    <gazebo reference="base">
-      <material>Gazebo/Black</material>
-    </gazebo>
-    <gazebo reference="caster">
-      <material>Gazebo/White</material>
-    </gazebo>
-    
-    <gazebo reference="wheel_right">
-      <material>Gazebo/Orange</material>
-    </gazebo>
-    <gazebo reference="wheel_left">
-      <material>Gazebo/Orange</material>
-    </gazebo>  
+  <link name="camera_link">
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="-0.16 0.0 0.08" rpy="0 0.0 3.14"/>
+    <parent link="base"/>
+    <child link="camera_link"/>
+    <axis xyz="0.0 0.0 1.0"/>
+  
+</joint>
+
+
+    <gazebo reference="camera_link">
+        <sensor type="camera" name="Botcamera">
+          <update_rate>30.0</update_rate>
+          <camera name="head">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>0.0</updateRate>
+            <cameraName>/Botcamera</cameraName>
+            <imageTopicName>image_raw</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>camera_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+          </plugin>
+        </sensor>
+        <material>Gazebo/Blue</material>
+      </gazebo>
+
+
+
+
+  
 
     <gazebo>
       <plugin filename="libgazebo_ros_diff_drive.so" name="gazebo_base_controller">
@@ -177,14 +213,19 @@ Thats why we use xacros
     </gazebo>
 
 
-
-
-
-
-
-
-
-
+  <gazebo reference="base">
+      <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="caster">
+      <material>Gazebo/White</material>
+    </gazebo>
+    
+    <gazebo reference="wheel_right">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+    <gazebo reference="wheel_left">
+      <material>Gazebo/Orange</material>
+    </gazebo>  
 
 
 

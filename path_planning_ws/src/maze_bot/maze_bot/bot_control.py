@@ -2,7 +2,23 @@ from math import pow , atan2,sqrt , degrees,asin
 from numpy import interp
 import numpy as np
 import cv2
+import os
+import pygame
+prev_angle_to_turn = 0
+Prev_distance_to_goal = 0
+angle_not_changed = 0
+dist_not_changed = 0
+backpeddling = 0
+trigger_backpeddling = False
+trigger_nxtpt = False
 
+prev_path_iter = 0
+goal_not_changed =0
+goal_not_changed_long =0
+
+
+pygame.mixer.init()
+pygame.mixer.music.load(os.path.abspath('src/maze_bot/resource/aud_chomp.mp3'))
 class Control:
 
     def __init__(self):
@@ -21,6 +37,12 @@ class Control:
         self.goal_pose_y = 140
         self.path_iter = 0
 
+    @staticmethod
+    def dist(pt_a,pt_b):
+
+        error_x= pt_b[0] - pt_a[0]
+        error_y= pt_a[1] - pt_b[1]
+        return( sqrt(pow( (error_x),2 ) + pow( (error_y),2 ) ) )
 
     @staticmethod
     def angle_n_dist(pt_a,pt_b):
@@ -73,9 +95,22 @@ class Control:
         
         #print("Car Angle (Simulation) = {}".format(self.car_angle_s))
 
-
-    def goal_movement(self,path,car_loc,velocity_obj,publisher_obj):
+    def get_suitablenxtpt(self,car_loc,path):
+        extra_i = 1
+        test_goal = path[self.path_iter+extra_i]
         
+        while(self.dist(car_loc, test_goal)<20):
+            extra_i+=1
+            test_goal = path[self.path_iter+extra_i]
+        print("Loading {} pt ".format(extra_i))
+        self.path_iter = self.path_iter + extra_i -1
+
+
+    def goal_movement_(self,path,car_loc,velocity_obj,publisher_obj):
+        global prev_angle_to_turn,angle_not_changed,backpeddling,trigger_backpeddling,trigger_nxtpt
+        global Prev_distance_to_goal,dist_not_changed
+        global prev_path_iter,goal_not_changed
+
         angle_to_goal, distance_to_goal = self.angle_n_dist(car_loc,(self.goal_pose_x,self.goal_pose_y))
 
 
@@ -85,7 +120,50 @@ class Control:
         velocity = interp(distance_to_goal,[0,100],[0.2,1.5])
 
         Angle = interp(angle_to_turn,[-360,360],[-4,4])
+
+        if (self.goal_not_reached_flag):
+            change_angle_to_turn = abs(angle_to_turn-prev_angle_to_turn)
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (abs(angle_to_turn) >5) and (change_angle_to_turn<0.2) and (not trigger_backpeddling) ):
+                angle_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(angle_not_changed>200):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_backpeddling = True
+            else:
+                angle_not_changed = 0
+            print("[prev,change,not_changed_iter,trigger_backpeddling] = [{:.1f},{:.1f},{},{}] ".format(prev_angle_to_turn,change_angle_to_turn,angle_not_changed,trigger_backpeddling))
+            prev_angle_to_turn = angle_to_turn        
+
+            change_dist = abs(distance_to_goal-Prev_distance_to_goal)
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (abs(distance_to_goal) >5) and (change_dist<0.2) and (not trigger_backpeddling) ):
+                dist_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(dist_not_changed>200):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_backpeddling = True
+            else:
+                dist_not_changed = 0
+            print("[prev_d,change_d,not_changed_iter,trigger_backpeddling] = [{:.1f},{:.1f},{},{}] ".format(Prev_distance_to_goal,change_dist,dist_not_changed,trigger_backpeddling))
+            Prev_distance_to_goal = distance_to_goal   
+            
+
+            change_goal = prev_path_iter-self.path_iter
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (change_goal==0) and (distance_to_goal<10) ):
+                goal_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(goal_not_changed>500):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_nxtpt = True
+            else:
+                goal_not_changed = 0
+            print("[prev_g,change_g,not_changed_iter] = [{:.1f},{:.1f},{}] ".format(prev_path_iter,change_goal,goal_not_changed))
+            prev_path_iter = self.path_iter   
+
         
+
         print("angle to goal = {} Angle_to_turn = {} Angle[Sim] {}".format(angle_to_goal,angle_to_turn,abs(Angle)))
         #print("self.goal_not_reached_flag = ",self.goal_not_reached_flag)
         print("distance_to_goal = ",distance_to_goal)
@@ -102,23 +180,162 @@ class Control:
         else:
             velocity_obj.linear.x = 0.0
         
+        # If trigger_backpeddling ==> Make Car reverse [For a few moments]
+        if trigger_backpeddling:
+            print("###> backpeddling <###")
+            if backpeddling==0:
+                trigger_nxtpt = True
+            velocity_obj.linear.x = -0.08
+            velocity_obj.angular.z = Angle
+            backpeddling+=1
+            if backpeddling == 200:
+                trigger_backpeddling = False
+                #Reset
+                backpeddling = 0
+                print("###> backpeddling DONE <###")
 
         if (self.goal_not_reached_flag) or (distance_to_goal<=1):
             #pass
             publisher_obj.publish(velocity_obj)
 
         print("len(path) = ( {} ) , path_iter = ( {} )".format(len(path),self.path_iter) )
-        if (distance_to_goal<=2):
-            #pass
+        if ((distance_to_goal<=5)or trigger_nxtpt):
+            if trigger_nxtpt:
+                if backpeddling:
+                    self.get_suitablenxtpt(car_loc,path)
+                trigger_nxtpt = False
+
             velocity_obj.linear.x = 0.0
             velocity_obj.angular.z = 0.0
             if self.goal_not_reached_flag:
-                #pass
                 publisher_obj.publish(velocity_obj)
 
             if self.path_iter==(len(path)-1):
                 self.goal_not_reached_flag=False
             else:
+                self.path_iter += 1
+                print("Current Goal (x,y) = ( {} , {} )".format(path[self.path_iter][0],path[self.path_iter][1]))
+                self.goal_pose_x = path[self.path_iter][0]
+                self.goal_pose_y = path[self.path_iter][1]
+
+    def goal_movement(self,path,car_loc,velocity_obj,publisher_obj):
+        global prev_angle_to_turn,angle_not_changed,backpeddling,trigger_backpeddling,trigger_nxtpt
+        global Prev_distance_to_goal,dist_not_changed
+        global prev_path_iter,goal_not_changed,goal_not_changed_long
+
+        angle_to_goal, distance_to_goal = self.angle_n_dist(car_loc,(self.goal_pose_x,self.goal_pose_y))
+
+
+        angle_to_turn = angle_to_goal - self.car_angle
+
+        #velocity = interp(distance_to_goal,[0,100],[0.1,1])
+        velocity = interp(distance_to_goal,[0,100],[0.2,1.5])
+
+        Angle = interp(angle_to_turn,[-360,360],[-8,8])
+
+        if (self.goal_not_reached_flag):
+            change_angle_to_turn = abs(angle_to_turn-prev_angle_to_turn)
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (abs(angle_to_turn) >5) and (change_angle_to_turn<0.2) and (not trigger_backpeddling) ):
+                angle_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(angle_not_changed>200):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_backpeddling = True
+            else:
+                angle_not_changed = 0
+            print("[prev,change,not_changed_iter,trigger_backpeddling] = [{:.1f},{:.1f},{},{}] ".format(prev_angle_to_turn,change_angle_to_turn,angle_not_changed,trigger_backpeddling))
+            prev_angle_to_turn = angle_to_turn        
+
+            change_dist = abs(distance_to_goal-Prev_distance_to_goal)
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (abs(distance_to_goal) >5) and (change_dist<0.2) and (not trigger_backpeddling) ):
+                dist_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(dist_not_changed>200):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_backpeddling = True
+            else:
+                dist_not_changed = 0
+            print("[prev_d,change_d,not_changed_iter,trigger_backpeddling] = [{:.1f},{:.1f},{},{}] ".format(Prev_distance_to_goal,change_dist,dist_not_changed,trigger_backpeddling))
+            Prev_distance_to_goal = distance_to_goal   
+            
+
+            change_goal = prev_path_iter-self.path_iter
+            # If angle is large and the its not changing verymuch and not already backpeddling
+            if( (change_goal==0) and (distance_to_goal<30) ):
+                goal_not_changed +=1
+                # For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse]
+                if(goal_not_changed>500):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_nxtpt = True
+            elif(change_goal==0):
+                goal_not_changed_long+=1
+                if(goal_not_changed_long>1500):
+                    print("###>  For a significant time angle not changed ---> Trigger backpeddling [Move car Reverse] <###")
+                    trigger_nxtpt = True
+            else:
+                goal_not_changed_long = 0
+                goal_not_changed = 0
+            print("[prev_g,change_g,not_changed_iter] = [{:.1f},{:.1f},{}] ".format(prev_path_iter,change_goal,goal_not_changed))
+            prev_path_iter = self.path_iter   
+
+        
+
+        print("angle to goal = {} Angle_to_turn = {} Angle[Sim] {}".format(angle_to_goal,angle_to_turn,abs(Angle)))
+        #print("self.goal_not_reached_flag = ",self.goal_not_reached_flag)
+        print("distance_to_goal = ",distance_to_goal)
+
+        if (distance_to_goal>=2):
+            #pass
+            velocity_obj.angular.z = Angle
+
+        if abs(Angle) < 0.4:
+            #pass
+            velocity_obj.linear.x = velocity
+        elif((abs(Angle) < 0.8)):
+            velocity_obj.linear.x = 0.02
+        else:
+            velocity_obj.linear.x = 0.0
+        
+        # If trigger_backpeddling ==> Make Car reverse [For a few moments]
+        if trigger_backpeddling:
+            print("###> backpeddling <###")
+            if backpeddling==0:
+                trigger_nxtpt = True
+            velocity_obj.linear.x = -0.08
+            velocity_obj.angular.z = Angle
+            backpeddling+=1
+            if backpeddling == 200:
+                trigger_backpeddling = False
+                #Reset
+                backpeddling = 0
+                print("###> backpeddling DONE <###")
+
+        if (self.goal_not_reached_flag) or (distance_to_goal<=1):
+            #pass
+            publisher_obj.publish(velocity_obj)
+
+        print("len(path) = ( {} ) , path_iter = ( {} )".format(len(path),self.path_iter) )
+        if ((distance_to_goal<=8)or trigger_nxtpt):
+            if trigger_nxtpt:
+                if backpeddling:
+                    self.get_suitablenxtpt(car_loc,path)
+                trigger_nxtpt = False
+
+            velocity_obj.linear.x = 0.0
+            velocity_obj.angular.z = 0.0
+            if self.goal_not_reached_flag:
+                publisher_obj.publish(velocity_obj)
+
+            if self.path_iter==(len(path)-1):
+                if self.goal_not_reached_flag:
+                    pygame.mixer.music.load(os.path.abspath('src/maze_bot/resource/Goal_reached.wav'))
+                    pygame.mixer.music.play()
+                self.goal_not_reached_flag=False
+            else:
+                if pygame.mixer.music.get_busy() == False:
+                    pygame.mixer.music.play()
                 self.path_iter += 1
                 print("Current Goal (x,y) = ( {} , {} )".format(path[self.path_iter][0],path[self.path_iter][1]))
                 self.goal_pose_x = path[self.path_iter][0]
@@ -212,26 +429,30 @@ class Control:
             curr_goal = path[path_i]
             # Mini Goal Completed
             if path_i!=0:
-                img_shortest_path = cv2.circle(img_shortest_path, path[path_i-1], 3, (0,255,0))
+                img_shortest_path = cv2.circle(img_shortest_path, path[path_i-1], 3, (0,255,0),2)
                 Done_pt = path[path_i-1]
             # Mini Goal Completing   
-            img_shortest_path = cv2.circle(img_shortest_path, curr_goal, 3, (0,140,255))
+            img_shortest_path = cv2.circle(img_shortest_path, curr_goal, 3, (0,140,255),2)
             Doing_pt = curr_goal
         else:
             # Only Display Final Goal completed
-            img_shortest_path = cv2.circle(img_shortest_path, path[path_i], 5, (0,255,0))
+            img_shortest_path = cv2.circle(img_shortest_path, path[path_i], 10, (0,255,0))
             Done_pt = path[path_i]
 
         if Doing_pt!=0:
             Doing_pt = self.bck_to_orig(Doing_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
-            frame_disp = cv2.circle(frame_disp, (int(Doing_pt[0]),int(Doing_pt[1])), 3, (0,140,255))            
+            frame_disp = cv2.circle(frame_disp, (int(Doing_pt[0]),int(Doing_pt[1])), 3, (0,140,255),2)            
             
         if Done_pt!=0:
             Done_pt = self.bck_to_orig(Done_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
             if ( (type(path)!=int) and ( path_i!=(len(path)-1) ) ):
-                frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 3, (0,255,0))   
+                pass
+                #frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 3, (0,255,0),2)   
             else:
-                frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 5, (0,255,0))   
-        print("[Doing_pt & Done_pt] ImgSize = [ {} & {} ] ({}) ".format(Doing_pt,Done_pt,frame_disp.shape))         
+                frame_disp = cv2.circle(frame_disp, (int(Done_pt[0]),int(Done_pt[1])) , 10, (0,255,0))  
+
+        st = "len(path) = ( {} ) , path_iter = ( {} )".format(len(path),self.path_iter)        
         
+        frame_disp = cv2.putText(frame_disp, st, (bot_localizer_obj.orig_X+50,bot_localizer_obj.orig_Y-30), cv2.FONT_HERSHEY_PLAIN, 1.2, (0,0,255))
+
         cv2.imshow("maze (Shortest Path + Car Loc)",img_shortest_path)
