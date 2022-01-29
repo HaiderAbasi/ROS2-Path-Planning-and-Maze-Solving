@@ -33,7 +33,7 @@ class Video_get(Node):
     self.velocity = Twist()
     self.pose_subscriber = self.create_subscription(Odometry,'/odom',self.control.get_pose,10)
 
-    self.bot_view = np.zeros((100,100))
+    self.bot_view = np.zeros((100,100,3))
 
   def process_data_bot(self, data):
       self.bot_view = self.bridge.imgmsg_to_cv2(data,'bgr8') # performing conversion
@@ -62,13 +62,11 @@ class Video_get(Node):
     
     print("Nodes Visited [Dijisktra V A-Star*] = [ {} V {} ]".format(self.path_finder.dijiktra_nodes_visited,self.path_finder.astar_nodes_visited))
     self.control.nav_path(self.bot_localizer.loc_car, shortest_path, self.maze_converter.img_shortest_path,self.publisher,self.velocity,self.bot_localizer,frame_disp)
-    
-    rows = frame_disp.shape[0]
-    cols = frame_disp.shape[1]
-    bot_view = cv2.resize(self.bot_view, (int(rows/3),int(cols/3)))
-    frame_disp[0:bot_view.shape[0],0:bot_view.shape[1]]=bot_view
+
+
+    bot_view = cv2.resize(self.bot_view, (int(frame_disp.shape[0]/2),int(frame_disp.shape[1]/2)))
+    frame_disp[0:bot_view.shape[0],0:bot_view.shape[1]] = bot_view
     cv2.imshow("Maze (Live)", frame_disp) # displaying what is being recorded 
-    #cv2.imshow("self.bot_view", self.bot_view) # displaying what is being recorded 
     cv2.waitKey(10)
   
   

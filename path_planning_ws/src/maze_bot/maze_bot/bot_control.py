@@ -329,6 +329,9 @@ class Control:
                 publisher_obj.publish(velocity_obj)
 
             if self.path_iter==(len(path)-1):
+                if self.goal_not_reached_flag:
+                    pygame.mixer.music.load(os.path.abspath('src/maze_bot/resource/Goal_reached.wav'))
+                    pygame.mixer.music.play()
                 self.goal_not_reached_flag=False
             else:
                 if pygame.mixer.music.get_busy() == False:
