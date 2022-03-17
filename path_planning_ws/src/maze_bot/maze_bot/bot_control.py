@@ -303,7 +303,7 @@ class Control:
             print("###> backpeddling <###")
             if backpeddling==0:
                 trigger_nxtpt = True
-            velocity_obj.linear.x = -0.08
+            velocity_obj.linear.x = -0.16#-0.08
             velocity_obj.angular.z = Angle
             backpeddling+=1
             if backpeddling == 200:
@@ -441,7 +441,10 @@ class Control:
 
         if Doing_pt!=0:
             Doing_pt = self.bck_to_orig(Doing_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
-            frame_disp = cv2.circle(frame_disp, (int(Doing_pt[0]),int(Doing_pt[1])), 3, (0,140,255),2)            
+            frame_disp = cv2.circle(frame_disp, (int(Doing_pt[0]),int(Doing_pt[1])), 3, (0,140,255),2)   
+            #loc_car_ = self.bck_to_orig(loc_car, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)
+            #frame_disp = cv2.circle(frame_disp, (int(loc_car_[0]),int(loc_car_[1])), 3, (0,0,255))
+         
             
         if Done_pt!=0:
             Done_pt = self.bck_to_orig(Done_pt, bot_localizer_obj.transform_arr, bot_localizer_obj.rot_mat_rev)

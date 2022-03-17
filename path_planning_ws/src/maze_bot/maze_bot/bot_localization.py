@@ -192,7 +192,3 @@ class bot_localizer():
         cv2.imshow("change_filled", change_filled) # displaying what is being recorded
         cv2.imshow("car_isolated", car_isolated) # displaying what is being recorded
         cv2.imshow("car_localized", frame_disp) # displaying what is being recorded
-
-
-        
-        

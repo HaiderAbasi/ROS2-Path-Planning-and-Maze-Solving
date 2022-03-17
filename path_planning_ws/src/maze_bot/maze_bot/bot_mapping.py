@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-draw_intrstpts = False
+draw_intrstpts = True
 debug_mapping = False
 display_graph = False
 cv2.namedWindow("traversing_crop",cv2.WINDOW_FREERATIO)
@@ -150,7 +150,15 @@ class Graph():
             traversing_crop = traversing[row-40:row+40 , col-40:col+40]
             cv2.imshow("traversing",traversing)
             cv2.imshow("traversing_crop",traversing_crop)
+            #if (len(path)==1):
+                #print("path = ",path," Start = ",start)
+                #cv2.waitKey(0)
             cv2.waitKey(5)
+        else:
+            #traversing = cv2.line(traversing,(prev_pt[1],prev_pt[0]) , (start[1],start[0]), (0,255,0))
+            cv2.imshow("traversing",traversing)
+            cv2.waitKey(0)
+
         path = path + [start]
         cost = cost + trav_cost
 
@@ -176,7 +184,7 @@ class Graph():
                     #print("Path Found Tonight = ",new_paths)
                     #print("Len(Path Found) = ",len(new_paths[0]))
                     path_pts = self.cords_to_pts(new_paths[0])
-                    self.draw_shortest_path(self.maze,path_pts,"chking")
+                    self.draw_shortest_path(self.maze,path_pts,"Shortest Path ?")
                     #cv2.waitKey(0)
                 for p in new_paths:
                     paths.append(p)
@@ -612,8 +620,8 @@ class maze_converter():
             if not self.shortst_path_found:
 
                 self.Graph.maze = self.maze
-
-                #paths_N_costs = self.Graph.get_paths_cost(self.Graph.start,self.Graph.end)
+                #traversing_img = cv2.cvtColor(self.maze, cv2.COLOR_GRAY2BGR)
+                #paths_N_costs = self.Graph.get_paths_cost(self.Graph.start,self.Graph.end,traversing_img)
                 paths_N_costs = self.Graph.get_path_cost(self.Graph.start,self.Graph.end)
                 print("paths_N_costs", paths_N_costs)
 
