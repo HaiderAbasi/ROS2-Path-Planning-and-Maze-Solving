@@ -1,6 +1,6 @@
 '''
 > Purpose :
-A node to help Computer vision team to start building thier code base using
+Node to perform the actual (worthy of your time) task of maze solving ;) 
 - Robot velocity interface
 - Upper Video camera as well
 
@@ -11,16 +11,16 @@ You need to write below command in terminal where your pacakge is sourced
 Note : Name of the node is actually name of executable file described in setup.py file of our package and not the name of python file
 
 > Inputs:
-This node is subscribing video feed from upper camera of maze
+This node is subscribing video feed from (Satellite or DroneCam)
 
 > Outputs:
 This node publishes on topic "/cmd_vel" , the required velocity ( linear and angular ) to move the robot
 
 Author :
-M.Luqman
+Haider Abbasi
 
 Date :
-16/03/22
+18/03/22
 '''
 
 import rclpy
@@ -30,6 +30,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import cv2
 
+import numpy as np
 class maze_solver(Node):
     def __init__(self):
         super().__init__("maze_solving_node")
@@ -40,18 +41,18 @@ class maze_solver(Node):
         self.bridge = CvBridge()
         self.vel_msg=Twist()
 
+        self.sat_view = np.zeros((100,100))
+
     def get_video_feed_cb(self,data):
         frame = self.bridge.imgmsg_to_cv2(data,'bgr8')
-
-        cv2.imshow("output", frame)
+        self.sat_view = frame
+        cv2.imshow("sat_view", self.sat_view)
         cv2.waitKey(1)
 
 
 
     def maze_solving(self):
-        ## Write all required functionalities below
-        ## this function is called every 0.2 secs
-        self.vel_msg.linear.x = 0.01 # for very slow movement
+        self.vel_msg.linear.x = 0.0
         self.vel_msg.angular.z = 0.0
 
         self.velocity_publisher.publish(self.vel_msg)
