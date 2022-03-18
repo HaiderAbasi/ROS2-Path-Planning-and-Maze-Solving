@@ -1686,7 +1686,7 @@
             <emissive>0 0 0 1</emissive>
           </material>
           <transparency>0</transparency>
-          <cast_shadows>1</cast_shadows>
+          <cast_shadows>0</cast_shadows>
         </visual>
         <collision name='collision'>
           <laser_retro>0</laser_retro>
@@ -1755,8 +1755,8 @@
               <format>R8G8B8</format>
             </image>
             <clip>
-              <near>0.02</near>
-              <far>300</far>
+              <near>0.03</near>
+              <far>100</far>
             </clip>
             <noise>
               <type>gaussian</type>
