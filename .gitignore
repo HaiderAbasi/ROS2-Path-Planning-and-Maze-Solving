@@ -1,0 +1,7 @@
+*.log
+*.pyc
+.Python
+build/
+install/
+log/
+path_planning_ws/output.avi

@@ -1,0 +1,237 @@
+<robot name="maze_bot">
+
+  <!-- 
+    - take a look into inertia_calculations.txt file
+    Inertia Values https://github.com/RobotnikAutomation/rb1_base_common/issues/1
+-   Get the inertia tensor 
+-   Scale 
+-   Divide by the volume
+-   Divide by scale*2 (scale -sqaurred)
+-   multiply with  mass you wantto give
+Thats why we use xacros
+
+ -->
+
+    <link name="base_footprint"/>
+    <link name="base">
+      <inertial>
+        <mass value="2" />
+        <origin xyz="0 0 0.1" rpy="0 0 0" />
+        <inertia ixx="0.00355" iyy="0.01265" izz="0.013832" ixy="0.0" ixz="0.0" iyz="0.0" />
+      </inertial>
+
+      <visual>
+        <geometry>
+            <mesh filename="package://maze_bot/meshes/base_link.stl"/>
+        </geometry>
+        <material name="gray">
+          <color rgba=".2 .2 .2 1" />
+        </material>
+      </visual>
+  
+      <collision>
+        <geometry>
+          <mesh filename="package://maze_bot/meshes/base_link.stl"/>
+      </geometry>
+        <contact_coefficients mu="1" mu2="1" kp="1e+13.0" kd="1.0"/>
+      </collision>
+
+
+    </link>
+   <joint name="base_joint" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+
+
+ <link name="wheel_right">
+    <inertial>
+      <mass value="0.75"/>
+      <inertia ixx="0.001444223" iyy="0.00280875" izz="0.001444223" ixy="0.0" ixz="0.0" iyz="0.0"/>
+      <origin/>
+    </inertial>
+  
+      <visual>
+        
+        <geometry>
+            <mesh filename="package://maze_bot/meshes/wheel_r.stl"/>
+        </geometry>
+
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+  
+      <collision>
+        <geometry>
+            <mesh filename="package://maze_bot/meshes/wheel_r.stl"/>
+        </geometry>
+        <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
+      </collision>
+
+    </link>
+  
+    <joint name="wheel_right_joint" type="continuous">
+      <origin xyz="0.09 0.085 0.04  " rpy="0 0.0 0.0"/>
+      <parent link="base"/>
+      <child link="wheel_right"/>
+      <axis xyz="0.0 -1.0 0"/>
+    </joint>
+  
+    <link name="wheel_left">
+      <inertial>
+        <mass value="0.75"/>
+        <inertia ixx="0.001444223" iyy="0.00280875" izz="0.001444223" ixy="0.0" ixz="0.0" iyz="0.0" />
+        <origin/>
+      </inertial>
+  
+      <visual>
+        
+        <geometry>
+            <mesh filename="package://maze_bot/meshes/wheel_l.stl"/>
+        </geometry>
+        
+        <material name="white">
+          <color rgba="1 1 1 1"/>
+        </material>
+      </visual>
+  
+      <collision>
+        <geometry>
+            <mesh filename="package://maze_bot/meshes/wheel_l.stl"/>
+        </geometry>
+        <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
+      </collision>
+    </link>
+  
+    <joint name="wheel_left_joint" type="continuous">
+      <origin xyz="0.09 -0.1 0.04" rpy="0 0.0 3.14"/>
+      <parent link="base"/>
+      <child link="wheel_left"/>
+      <axis xyz="0.0 1 0"/>
+  
+    </joint>
+  
+  
+    <link name="caster">
+
+      <inertial>
+        <mass value="0.75"/>
+        <inertia ixx="0.0001295" iyy="0.0001295" izz="0.000199322" ixy="0.0" ixz="0.0" iyz="0.0" />
+        <origin/>
+      </inertial>
+  
+      <visual>
+        <geometry>
+          <mesh filename="package://maze_bot/meshes/front_caster.stl"/>
+      </geometry>
+        <material name="black" />
+      </visual>
+  
+      <collision>
+        <geometry>
+          <mesh filename="package://maze_bot/meshes/front_caster.stl"/>
+      </geometry>
+        <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
+      </collision>
+    </link>
+  
+    <joint name="caster_joint" type="continuous">
+      <origin xyz="-0.14 -0.007 -0.03" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0 0 1" />
+      <parent link="base"/>
+      <child link="caster"/>
+    </joint>  
+
+
+  <link name="camera_link">
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="-0.16 0.0 0.08" rpy="0 0.0 3.14"/>
+    <parent link="base"/>
+    <child link="camera_link"/>
+    <axis xyz="0.0 0.0 1.0"/>
+  
+</joint>
+
+
+    <gazebo reference="camera_link">
+        <sensor type="camera" name="Botcamera">
+          <update_rate>30.0</update_rate>
+          <camera name="head">
+            <horizontal_fov>1.3962634</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>0.0</updateRate>
+            <cameraName>/Botcamera</cameraName>
+            <imageTopicName>image_raw</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>camera_link</frameName>
+            <hackBaseline>0.07</hackBaseline>
+          </plugin>
+        </sensor>
+        <material>Gazebo/Blue</material>
+      </gazebo>
+
+
+
+
+  
+
+    <gazebo>
+      <plugin filename="libgazebo_ros_diff_drive.so" name="gazebo_base_controller">
+        <odometry_frame>odom</odometry_frame>
+        <commandTopic>cmd_vel</commandTopic>
+        <publish_odom>true</publish_odom>
+        <publish_odom_tf>true</publish_odom_tf>
+        <update_rate>15.0</update_rate>
+        <left_joint>wheel_left_joint</left_joint>
+        <right_joint>wheel_right_joint</right_joint>
+        <wheel_separation>0.8</wheel_separation>
+        <wheel_diameter>0.3</wheel_diameter>
+        <max_wheel_acceleration>0.7</max_wheel_acceleration>
+        <robotBaseFrame>base</robotBaseFrame>
+  
+      </plugin>
+    </gazebo>
+
+
+  <gazebo reference="base">
+      <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="caster">
+      <material>Gazebo/White</material>
+    </gazebo>
+    
+    <gazebo reference="wheel_right">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+    <gazebo reference="wheel_left">
+      <material>Gazebo/Orange</material>
+    </gazebo>  
+
+
+
+
+
+
+
+  </robot>
+  

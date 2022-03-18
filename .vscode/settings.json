@@ -1,0 +1,8 @@
+{
+    "python.linting.pylintArgs": [
+        "--extension-pkg-whitelist=cv2",
+        "--generate-members=cv2.*"
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+}
