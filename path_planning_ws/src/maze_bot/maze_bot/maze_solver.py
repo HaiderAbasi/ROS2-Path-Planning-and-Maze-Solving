@@ -29,10 +29,15 @@ from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import cv2
+
 from .bot_localization import bot_localizer
+from .bot_mapping import bot_mapper
+
 import numpy as np
 class maze_solver(Node):
+
     def __init__(self):
+        
         super().__init__("maze_solving_node")
         self.velocity_publisher = self.create_publisher(Twist,'/cmd_vel',10)
         self.videofeed_subscriber = self.create_subscription(Image,'/upper_camera/image_raw',self.get_video_feed_cb,10)
@@ -40,7 +45,10 @@ class maze_solver(Node):
         self.timer = self.create_timer(0.2, self.maze_solving)
         self.bridge = CvBridge()
         self.vel_msg=Twist()
+
         self.bot_localizer = bot_localizer()
+        self.bot_mapper = bot_mapper()
+        
         self.sat_view = np.zeros((100,100))
 
     def get_video_feed_cb(self,data):
@@ -50,8 +58,12 @@ class maze_solver(Node):
         cv2.waitKey(1)
 
     def maze_solving(self):
+        
         frame_disp = self.sat_view.copy()
+        
         self.bot_localizer.localize_bot(self.sat_view, frame_disp)
+        self.bot_mapper.graphify(self.bot_localizer.maze_og)
+        
         self.vel_msg.linear.x = 0.0
         self.vel_msg.angular.z = 0.0
 
