@@ -32,6 +32,7 @@ import cv2
 
 from .bot_localization import bot_localizer
 from .bot_mapping import bot_mapper
+from .bot_pathplanning import bot_pathplanner
 
 import numpy as np
 class maze_solver(Node):
@@ -48,6 +49,7 @@ class maze_solver(Node):
 
         self.bot_localizer = bot_localizer()
         self.bot_mapper = bot_mapper()
+        self.bot_pathplanner = bot_pathplanner()
         
         self.sat_view = np.zeros((100,100))
 
@@ -58,12 +60,26 @@ class maze_solver(Node):
         cv2.waitKey(1)
 
     def maze_solving(self):
-        
+
+        # Creating frame to display current robot state to user        
         frame_disp = self.sat_view.copy()
         
+        # [Stage 1: Localization] Localizing robot at each iteration        
         self.bot_localizer.localize_bot(self.sat_view, frame_disp)
+
+        # [Stage 2: Mapping] Converting Image to Graph
         self.bot_mapper.graphify(self.bot_localizer.maze_og)
+
+        # [Stage 3: PathPlanning] Using {User Specified PathPlanner} to find path to goal        
+        start = self.bot_mapper.Graph.start
+        end = self.bot_mapper.Graph.end
+        maze = self.bot_mapper.maze
+        self.bot_pathplanner.find_path_nd_display(self.bot_mapper.Graph.graph, start, end, maze,method="dijisktra")
+        self.bot_pathplanner.find_path_nd_display(self.bot_mapper.Graph.graph, start, end, maze,method="a_star")
+        print("\nNodes Visited [Dijisktra V A-Star*] = [ {} V {} ]".format(self.bot_pathplanner.dijisktra.dijiktra_nodes_visited,self.bot_pathplanner.astar.astar_nodes_visited))
+        cv2.waitKey(0)
         
+        # Setting robot speed and angle        
         self.vel_msg.linear.x = 0.0
         self.vel_msg.angular.z = 0.0
 

@@ -55,6 +55,9 @@ class bot_mapper():
         # Maze (Colored) for displaying connection between nodes
         self.maze_connect = []
 
+        # Maze (One-Pass) Input
+        self.maze = 0
+
     # Display connection between nodes with a colored line
     def display_connected_nodes(self,curr_node,neighbor_node,case="Unkown",color=(0,0,255)):
         curr_pixel = (curr_node[1],curr_node[0])
@@ -411,5 +414,7 @@ class bot_mapper():
             # Step 5: Identify Interest Points in the path to further reduce processing time
             self.one_pass(thinned_cropped)
             cv2.waitKey(0)
+
+            self.maze = thinned_cropped
 
 
