@@ -1,3 +1,29 @@
+'''
+> Purpose :
+Module to perform localization of robot using Background Subtraction.
+
+> Usage :
+You can perform localization of the robot by
+1) Importing the class (bot_localizer)
+2) Creating its object
+3) Accessing the object's function of localize bot. 
+E.g ( self.bot_localizer.localize_bot(self.sat_view, frame_disp) )
+
+
+> Inputs:
+1) Extracted frame from video feed of (Satellite or DroneCam)
+2) Frame To display the localized robot
+
+> Outputs:
+1) self.car_loc => Cordinates (X,Y) of the localized car
+2) self.maze_og => Occupancy Grid generated from the cropped maze
+
+Author :
+Haider Abbasi
+
+Date :
+6/04/22
+'''
 import cv2
 import numpy as np
 
@@ -146,25 +172,25 @@ class bot_localizer():
         if not self.is_bg_extracted:
             self.extract_bg(curr_frame.copy())
             self.is_bg_extracted = True
-        else:
-            # Step 2: Foreground Detection
-            change = cv2.absdiff(curr_frame, self.bg_model)
-            change_gray = cv2.cvtColor(change, cv2.COLOR_BGR2GRAY)
-            change_mask = cv2.threshold(change_gray, 15, 255, cv2.THRESH_BINARY)[1]
-            car_mask, car_cnt = ret_largest_obj(change_mask)
+            
+        # Step 2: Foreground Detection
+        change = cv2.absdiff(curr_frame, self.bg_model)
+        change_gray = cv2.cvtColor(change, cv2.COLOR_BGR2GRAY)
+        change_mask = cv2.threshold(change_gray, 15, 255, cv2.THRESH_BINARY)[1]
+        car_mask, car_cnt = ret_largest_obj(change_mask)
 
-            # Step 3: Fetching the (relative) location of car.
-            self.get_car_loc(car_cnt,car_mask)
+        # Step 3: Fetching the (relative) location of car.
+        self.get_car_loc(car_cnt,car_mask)
 
-            # Drawing bounding circle around detected car
-            center, radii = cv2.minEnclosingCircle(car_cnt)
-            car_circular_mask = cv2.circle(car_mask.copy(), (int(center[0]), int(center[1])), int(radii+(radii*0.4)), 255, 3)
-            car_circular_mask = cv2.bitwise_xor(car_circular_mask, car_mask)
-            frame_disp[car_mask>0]  = frame_disp[car_mask>0] + (0,64,0)
-            frame_disp[car_circular_mask>0]  = (0,0,255)
+        # Drawing bounding circle around detected car
+        center, radii = cv2.minEnclosingCircle(car_cnt)
+        car_circular_mask = cv2.circle(car_mask.copy(), (int(center[0]), int(center[1])), int(radii+(radii*0.4)), 255, 3)
+        car_circular_mask = cv2.bitwise_xor(car_circular_mask, car_mask)
+        frame_disp[car_mask>0]  = frame_disp[car_mask>0] + (0,64,0)
+        frame_disp[car_circular_mask>0]  = (0,0,255)
 
-            # Displaying Extracted Car_mask and Localized car in frame
-            cv2.imshow("change_mask(Noise Visible)", change_mask) 
-            cv2.imshow("Detected_foreground(car)", car_mask) 
-            cv2.imshow("car_localized", frame_disp)
+        # Displaying Extracted Car_mask and Localized car in frame
+        cv2.imshow("change_mask(Noise Visible)", change_mask) 
+        cv2.imshow("Detected_foreground(car)", car_mask) 
+        cv2.imshow("car_localized", frame_disp)
             

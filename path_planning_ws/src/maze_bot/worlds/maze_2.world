@@ -207,46 +207,18 @@
       <pose>2.5658 5.0414 0 0 -0 0</pose>
     </model>
     <state world_name='default'>
-      <sim_time>895 77000000</sim_time>
-      <real_time>119 920373630</real_time>
-      <wall_time>1643257765 518025233</wall_time>
-      <iterations>118019</iterations>
+      <sim_time>955 752000000</sim_time>
+      <real_time>60 883431891</real_time>
+      <wall_time>1649185490 890244798</wall_time>
+      <iterations>60675</iterations>
       <model name='camera'>
-        <pose>2.76499 5.40386 25.4161 0 -0 0</pose>
+        <pose>2.99941 4.46162 25.4161 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link_0'>
-          <pose>2.76499 5.40386 25.4161 0 -0 0</pose>
+          <pose>2.99941 4.46162 25.4161 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-            <model name='maze_bot'>
-        <pose>0.004378 -0.014617 0.035376 0.000297 0.059663 -1.6037</pose>
-        <scale>1 1 1</scale>
-        <link name='base_footprint'>
-          <pose>0.004378 -0.014617 0.035376 0.000297 0.059663 -1.6037</pose>
-          <velocity>-2.8e-05 6e-05 -0.002855 -0.009382 0.017444 0.001892</velocity>
-          <acceleration>3.75751 2.09941 -5.59842 0.798491 -0.459878 2.73138</acceleration>
-          <wrench>7.51502 4.19883 -11.1968 0 -0 0</wrench>
-        </link>
-        <link name='caster'>
-          <pose>0.002046 0.127076 0.013775 -0.048617 0.034567 -2.56139</pose>
-          <velocity>-0.000632 -7.1e-05 -0.004147 -0.005762 -0.009393 0.32975</velocity>
-          <acceleration>-0.439103 -0.020767 -8.29254 2.62209 1.09511 1.57685</acceleration>
-          <wrench>-0.329327 -0.015576 -6.21941 0 -0 0</wrench>
-        </link>
-        <link name='wheel_left'>
-          <pose>-0.098612 -0.103499 0.069909 -0.000259 -0.239764 1.53635</pose>
-          <velocity>0.000918 0.000297 -5.9e-05 -0.004324 0.013531 0.002302</velocity>
-          <acceleration>1.87539 1.05138 -0.143121 2.51504 0.851809 -1.88978</acceleration>
-          <wrench>1.40654 0.788533 -0.107341 0 -0 0</wrench>
-        </link>
-        <link name='wheel_right'>
-          <pose>0.086285 -0.109589 0.069963 0.000279 0.183261 -1.60366</pose>
-          <velocity>0.000881 0.000614 -0.00346 -0.009509 0.013211 0.002075</velocity>
-          <acceleration>1.7803 1.06178 -6.92041 -1.14602 0.417898 0.794297</acceleration>
-          <wrench>1.33523 0.796338 -5.19031 0 -0 0</wrench>
         </link>
       </model>
       <model name='ground_plane'>
@@ -437,13 +409,41 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
+      <model name='maze_bot'>
+        <pose>0.004272 -0.015553 0.035401 2.5e-05 0.059503 -1.57381</pose>
+        <scale>1 1 1</scale>
+        <link name='base_footprint'>
+          <pose>0.004272 -0.015553 0.035401 2.5e-05 0.059503 -1.57381</pose>
+          <velocity>5.1e-05 0.000344 0.002488 -0.017387 -0.000482 -0.000617</velocity>
+          <acceleration>-0.116687 4.10309 5.18392 -0.349999 0.269389 2.97631</acceleration>
+          <wrench>-0.233374 8.20618 10.3678 0 -0 0</wrench>
+        </link>
+        <link name='caster'>
+          <pose>-0.0023 0.126003 0.01378 0.04296 0.04106 -0.765845</pose>
+          <velocity>0.00014 0.000129 8e-06 -0.007109 0.04661 -0.795632</velocity>
+          <acceleration>-0.01845 0.19018 0.013158 -1.99873 -1.35318 0.53902</acceleration>
+          <wrench>-0.013838 0.142635 0.009869 0 -0 0</wrench>
+        </link>
+        <link name='wheel_left'>
+          <pose>-0.096007 -0.10747 0.069976 7.5e-05 -0.328377 1.56616</pose>
+          <velocity>-1.7e-05 0.001057 0.004047 -0.015157 -0.000216 -0.00062</velocity>
+          <acceleration>-0.045319 1.93237 8.09946 1.90264 -0.84137 -0.021226</acceleration>
+          <wrench>-0.033989 1.44928 6.0746 0 -0 0</wrench>
+        </link>
+        <link name='wheel_right'>
+          <pose>0.088992 -0.108028 0.06998 2.4e-05 0.20914 -1.57381</pose>
+          <velocity>-3e-05 0.000981 0.004155 -0.014105 -0.000428 -0.000648</velocity>
+          <acceleration>-0.07098 2.00617 8.31076 -0.610488 -1.49967 3.06709</acceleration>
+          <wrench>-0.053235 1.50463 6.23307 0 -0 0</wrench>
+        </link>
+      </model>
       <light name='sun'>
         <pose>0 0 9 -0.1 -0.5 -0.1</pose>
       </light>
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>3.11847 4.85003 25.9335 -1e-06 1.56179 -1.57099</pose>
+        <pose>2.42543 5.44377 28.921 -6e-06 1.56179 -1.57099</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>

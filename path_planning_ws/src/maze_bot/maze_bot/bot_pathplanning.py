@@ -1,3 +1,32 @@
+'''
+> Purpose :
+Module to perform pathplanning from source to destination using provided methods.
+                                                                         [DFS,DFS_Shortest,Dijisktra,Astar]
+
+> Usage :
+You can perform pathplanning by
+1) Importing the class (bot_pathplanner)
+2) Creating its object
+3) Accessing the object's function of (find_path_nd_display). 
+E.g ( self.bot_pathplanner.find_path_nd_display(self.bot_mapper.Graph.graph, start, end, maze,method="a_star") )
+
+
+> Inputs:
+1) Graph extracted in mapping stage
+2) Source & Destination
+3) Maze Image
+4) Method to Use [DFS,DFS_Shortest,Dijisktra,Astar]
+
+> Outputs:
+1) self.path_to_goal      => Computed Path from Source to destination [List of Cordinates]
+2) self.img_shortest_path => Found path Overlayed (In Color) on Image
+
+Author :
+Haider Abbasi
+
+Date :
+6/04/22
+'''
 import cv2
 import numpy as np
 from numpy import sqrt
@@ -8,6 +37,9 @@ class bot_pathplanner():
         self.DFS = DFS()
         self.dijisktra = dijisktra()
         self.astar = a_star()
+
+        self.path_to_goal = []
+        self.img_shortest_path = []
 
     @staticmethod
     def cords_to_pts(cords):
@@ -36,6 +68,7 @@ class bot_pathplanner():
         img_str = "maze (Found Path) [" +method +"]"
         cv2.namedWindow(img_str,cv2.WINDOW_FREERATIO)
         cv2.imshow(img_str, maze_bgr)
+        self.img_shortest_path = maze_bgr
 
     def find_path_nd_display(self,graph,start,end,maze,method = "DFS"):
 
@@ -70,11 +103,12 @@ class bot_pathplanner():
             
             path_to_display = self.astar.shortest_path
             Path_str = "\nShortest "+ Path_str
-
+        
         pathpts_to_display = self.cords_to_pts(path_to_display)
+        self.path_to_goal = pathpts_to_display
+        
         print(Path_str," from {} to {} is =  {}".format(start,end,pathpts_to_display))
         self.draw_path_on_maze(maze,pathpts_to_display,method)
-        cv2.waitKey(0)
 
 
 class DFS():

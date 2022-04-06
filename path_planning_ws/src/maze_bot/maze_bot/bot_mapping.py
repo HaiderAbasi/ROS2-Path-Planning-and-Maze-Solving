@@ -1,3 +1,28 @@
+'''
+> Purpose :
+Module to perform mapping to convert [(top down) maze view ==> traversable graph.]
+
+> Usage :
+You can perform mapping by
+1) Importing the class (bot_mapper)
+2) Creating its object
+3) Accessing the object's function of (graphify). 
+E.g ( self.bot_mapper.graphify(self.bot_localizer.maze_og) )
+
+
+> Inputs:
+1) Occupancy Grid from localization stage
+
+> Outputs:
+1) self.Graph.graph       => Generated graph from provided maze occupancy grid
+2) self.maze              => Image displaying only pathways in maze
+
+Author :
+Haider Abbasi
+
+Date :
+6/04/22
+'''
 import cv2
 import numpy as np
 
@@ -413,8 +438,9 @@ class bot_mapper():
             cv2.imshow('Maze (thinned*2)(Cropped)(Path_Overlayed)', extracted_maze_cropped)
             # Step 5: Identify Interest Points in the path to further reduce processing time
             self.one_pass(thinned_cropped)
-            cv2.waitKey(0)
+            #cv2.waitKey(0)
 
             self.maze = thinned_cropped
+            self.graphified = True
 
 
