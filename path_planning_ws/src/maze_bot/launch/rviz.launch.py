@@ -6,7 +6,6 @@ from scripts import GazeboRosPaths
 def generate_launch_description():
     package_share_dir = get_package_share_directory("maze_bot")
     urdf = os.path.join(package_share_dir, "urdf", "maze_bot.urdf")
-    # rviz_config_file=os.path.join(package_share_dir,'config.rviz')
     model_path, plugin_path, media_path = GazeboRosPaths.get_paths()
     env = {
             "GAZEBO_MODEL_PATH": model_path,
@@ -28,8 +27,7 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        # arguments=['-d',rviz_config_file],
         output='screen'),
-        
+
 
     ])

@@ -1,49 +1,35 @@
 import cv2
 
-from bot_mapping import maze_converter
+from bot_mapping import bot_mapper
+from bot_pathplanning import DFS
 
-maze_converter_ = maze_converter()
+bot_mapper_ = bot_mapper()
+DFS_ = DFS()
 
 def main():
-    tiny = cv2.imread("/home/haiderabbasi/Desktop/custom.png",cv2.IMREAD_GRAYSCALE)
-    #print(tiny)
+    
+    tiny = cv2.imread("/home/haiderabbasi/Desktop/party_tiny.png",cv2.IMREAD_GRAYSCALE)
+
+    # Displaying Tiny Maze
     cv2.namedWindow("tiny_maze",cv2.WINDOW_FREERATIO)
-    cv2.imshow("tiny_maze",tiny)
-    #cv2.waitKey(0) 
+    cv2.imshow("tiny_maze",tiny)    
     
-    maze_converter_.one_pass(tiny)
-    #start = (0,4)
-    start = maze_converter_.Graph.start
-    end = maze_converter_.Graph.end
-    #end = (9,6)
-    #end = (9,4)
-
-    #start = (0,6)
-    #end = (9,0)
-    
-    maze_converter_.Graph.maze = tiny
-
-    traversing = cv2.cvtColor(maze_converter_.Graph.maze, cv2.COLOR_GRAY2BGR)
-
-    paths_N_costs = maze_converter_.Graph.get_paths_cost(start,end,traversing)
-    #paths_N_costs = maze_converter_.Graph.get_paths_cost(start,end)
-    paths = paths_N_costs[0]
-    costs = paths_N_costs[1]
-    min_cost = min(costs)
-    shortest_path = paths[costs.index(min_cost)]
-    shortest_path_pts = maze_converter_.cords_to_pts(shortest_path)
-    
-    for i,_ in enumerate(paths):
-        #print("\nPath from {} to {} is {}\n".format(start,end,maze_converter_.Graph.get_paths_cost(start,end)))
-        print("\nPath from {} to {} is [ {} Cost -> {} ] \n".format(start,end,paths[i],costs[i]))
-    
-    print("\nShortest Path from {} to {} is [ {} Cost -> {} ] \n".format(start,end,shortest_path,min_cost))
-    print("No of paths found = ",len(paths))
+    # [Mapping] Applying the One Pass Algorithm to Convert Maze Image to Graph
+    bot_mapper_.one_pass(tiny)
+    print("** Graph Extracted **\n")
+    bot_mapper_.Graph.displaygraph()
+    print("\n** =============== **\n")
     cv2.waitKey(0)
 
+    # [PathPlanning] Finding all paths to goal (End) using [DFS]
+    start = bot_mapper_.Graph.start
+    end = (3,4)
     
-    maze_converter_.draw_shortest_path(tiny,shortest_path_pts,"Shortest?")
-    cv2.waitKey(0)
+    paths = DFS_.get_paths(bot_mapper_.Graph.graph, start, end)
+    
+    # Displaying found paths
+    print("Paths from {} to end {} is : \n {}".format(start,end,paths))
+    
 
 
 if __name__ == '__main__':
