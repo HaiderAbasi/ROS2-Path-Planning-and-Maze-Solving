@@ -1,56 +1,104 @@
-# ROS2-Path-Planning-and-Maze-Solving
+# Maze Solving using Computer Vision In ROS2
 
-## This Repo is UnderConstruction !!
-## 🤝 Introduction <!-- omit in toc -->
-<!--  read me inspired from   : https://github.com/kartben/artificial-nose/blob/master/README.md-->
+[![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/tree/master/images/cover.png)]
+
 ## Repository contents
-
-* 💰 [Hardware used](./bom/README.md) ;
-* ⚡ [Connections](./schematics/README.md) ;
-* 👩‍💻 [Code](./firmware) ;
-* 🧊 [Models](./enclosure/README.md).
-
-
-## Author <!-- omit in toc -->
-
-👤 **Benjamin Cabé**
-
-- Website: [https://google.com](https://lawaras.com)
-- Github: [@cripple](https://github.com/abbasi)
-- LinkedIn: [@abbasi](https://linkedin.com/in/abbasi)
-
-👤 **Muhammad Luqman**
-
-- Website: [https://robotisim.com](https://robotisim.com)
-- Github: [@luqman](https://github.com/larka)
-- LinkedIn: [@luqman](https://linkedin.com/in/larka)
-
-### TODO : 
-#### ROS : Not Working on Other Systems
-
-#### To Run you need to perform certain things
-
-- After cloning move into the folder "src"
- - cd **cd ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/**
- - **colcon build**
- - **source install/setup.bash**
-- Keep in mind this source step needs to be done on every new terminal you open until you have saved this path in your bash rc file
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#About-this-Repository">🤝Repository's About</a></li>
+    <li><a href="#Using-this-Repository">⚡ Using this Repository</a></li>
+    <li><a href="#Features">⛲Features</a></li>
+    <li><a href="#Pre-Course-Requirments">🧊Pre-Course Requirments</a></li>
+    <li><a href="#Notes">📗 Notes</a></li>
+    <li><a href="#Instructors">👤Instructors</a></li>
+    <li><a href="#Course-Coupon">💰Coupon</a></li>
+    <li><a href="#license">📝License</a></li>
+  </ol>
+</details>
 
 
-### Running the Launch Files
- - To run the Gazebo with maze and camera for recording run the following commands in order
+## 🤝Repository's About
+---
+This course is focus on Maze Solving behavior of robot In a Simulation based on ROS2. Computer Vision is the key focus with integrated important robotics algorithms of Motion Planning . The type of robot we will be using is Differential Drive Robot with a caster wheel . Course is structured with below main headings .
+- Custom Robot Creation
+- Gazebo and Rviz Integrations
+- Localization
+- Navigation
+- Path Planning
 
-  - **ros2 launch maze_bot maze_world.launch.py**
-  - **ros2 run path_planning video_recording_node**
-  This will save video into ~/home folder with the name -> output.avi
-  if you perform twice it will replace the previous file
+From our robot to last computer vision Node ,we will create every thing from scratch . Python Object Oriented programming practices will be utilized for better development.
+## ⚡ Using this Repository
+----
+<!-- -- #### **Video Demonstration**
+  If the repository is not working for you. Watch the free preview video on our course page Where full explaination is given on setting up this repository.
+[How to Run the Project] -->
+#### **Setting Up Package**
+ * Clone the repository in you Home folder
+```
+git clone https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving.git
+```
+ * Navigate into your downloaded repository
+ ```
+cd /path/to/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws
+```
+* Source your ROS2 installation to build workspaces
+```
+$ source /opt/ros/foxy/setup.bash
+```
+* Perform Colcon Build ( source ~/opt.ros )
+```
+colcon build
+```
+* Source your Workspace in any terminal you open to Run files from this workspace ( Basic thing of ROS2 )
+```
+source ~/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/install/setup.bash
+```
+* (Optional for Power USERs ) Add source to this workspace into bash file
+ ```
+  echo "source ~/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/install/setup.bash" >> ~/.bashrc
+ ```
+  **NOTE:** This upper command is going to add the source file path into your ~/.bashrc file ( Only perform it ONCE and you know what you are doing).This will save your time when running things from the Workspace
 
-  Video Recording tab also requires **ros-foxy-gazebo-plugins**
-  
-  
-  
-  ## 📝 License <!-- omit in toc -->
 
-Copyright &copy; 2020-3000 [Larkay](https://github.com/Bharaywalay).
+## ⛲ Features
+---
+* **Custom Robot Integeration**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/tree/master/images/robot_model.gif)<br/><br/>
+* **Drive to Goal Nodes**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/tree/master/images/nodes.gif)<br/><br/>
+* **Custom World Setup**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/tree/master/images/world.gif)<br/><br/>
 
-This project is [MIT](/LICENSE) licensed.
+
+## 🧊 Pre-Course Requirments:
+---
+- Ubuntu 20.04 (LTS)
+- ROS2 - Foxy Fitzroy
+- Python 3.6
+- Opencv 4.2
+
+## 📗 Notes
+---
+You can access section wise notes here -> **[PDFs](./notes)**
+
+
+## 💰 Coupon
+----
+Udemy Discounted Course Link **[[Discounted Link]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/?couponCode=LAUNCH)**
+
+## 👤 Instructors
+---
+**Muhammad Luqman**
+
+- Website: [Robotisim](https://robotisim.com)
+- Github: [Luqman.git](https://github.com/noshluk2)
+- LinkedIn: [Luqman.in](https://www.linkedin.com/in/muhammad-luqman-9b227a11b/)
+
+**Haider Abbasi**
+
+- Github: [Haider.git](https://github.com/HaiderAbasi)
+- LinkedIn: [Haider.in](https://www.linkedin.com/in/haider-najeeb-68812516a/)
+## 📝 License
+  ----
+  Distributed under the GNU-GPL License. See `LICENSE` for more information.
