@@ -31,6 +31,7 @@ import cv2
 import numpy as np
 from numpy import sqrt
 
+from . import config
 class bot_pathplanner():
 
     def __init__(self):
@@ -40,6 +41,8 @@ class bot_pathplanner():
 
         self.path_to_goal = []
         self.img_shortest_path = []
+        self.choosen_route = []
+        
 
     @staticmethod
     def cords_to_pts(cords):
@@ -48,6 +51,7 @@ class bot_pathplanner():
     def draw_path_on_maze(self,maze,shortest_path_pts,method):
         
         maze_bgr = cv2.cvtColor(maze, cv2.COLOR_GRAY2BGR)
+        self.choosen_route = np.zeros_like(maze_bgr)
 
         rang = list(range(0,254,25))
         
@@ -64,11 +68,19 @@ class bot_pathplanner():
                       int(255 * (1-per_depth))
                     )
             cv2.line(maze_bgr,shortest_path_pts[i] , shortest_path_pts[i+1], color)
+            cv2.line(self.choosen_route,shortest_path_pts[i] , shortest_path_pts[i+1], color,3)
 
         img_str = "maze (Found Path) [" +method +"]"
-        cv2.namedWindow(img_str,cv2.WINDOW_FREERATIO)
-        cv2.imshow(img_str, maze_bgr)
-        self.img_shortest_path = maze_bgr
+        if config.debug and config.debug_pathplanning:
+            cv2.namedWindow(img_str,cv2.WINDOW_FREERATIO)
+            cv2.imshow(img_str, maze_bgr)
+
+        if method == "dijisktra":
+            self.dijisktra.shortest_path_overlayed = maze_bgr
+        elif method == "a_star":
+            self.astar.shortest_path_overlayed = maze_bgr
+            
+        self.img_shortest_path = maze_bgr.copy()
 
     def find_path_nd_display(self,graph,start,end,maze,method = "DFS"):
 
@@ -103,12 +115,39 @@ class bot_pathplanner():
             
             path_to_display = self.astar.shortest_path
             Path_str = "\nShortest "+ Path_str
-        
+
         pathpts_to_display = self.cords_to_pts(path_to_display)
         self.path_to_goal = pathpts_to_display
         
-        print(Path_str," from {} to {} is =  {}".format(start,end,pathpts_to_display))
-        self.draw_path_on_maze(maze,pathpts_to_display,method)
+        if config.debug and config.debug_pathplanning:
+            print(Path_str," from {} to {} is =  {}".format(start,end,pathpts_to_display))
+
+        if (method =="dijisktra"):
+            if (self.dijisktra.shortest_path_overlayed == []):
+                self.draw_path_on_maze(maze,pathpts_to_display,method)
+            else:
+                if config.debug and config.debug_pathplanning:
+                    cv2.imshow("maze (Found Path) [dijisktra]", self.dijisktra.shortest_path_overlayed)
+                else:
+                    try:
+                        cv2.destroyWindow("maze (Found Path) [dijisktra]")
+                    except:
+                        pass
+
+        elif (method == "a_star"):
+            if (self.astar.shortest_path_overlayed == []):
+                self.draw_path_on_maze(maze,pathpts_to_display,method)
+            else:
+                if config.debug and config.debug_pathplanning:
+                    cv2.imshow("maze (Found Path) [a_star]", self.astar.shortest_path_overlayed)
+                else:
+                    try:
+                        cv2.destroyWindow("maze (Found Path) [a_star]")
+                    except:
+                        pass
+                
+
+        
 
 
 class DFS():
@@ -286,6 +325,8 @@ class dijisktra():
         self.shortestpath_found = False
         # Once found save the shortest path
         self.shortest_path = []
+
+        self.shortest_path_overlayed = []
 
         # instance variable assigned obj of heap class for implementing required priority queue
         self.minHeap = Heap()

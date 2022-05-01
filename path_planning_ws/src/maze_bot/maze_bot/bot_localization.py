@@ -28,7 +28,7 @@ import cv2
 import numpy as np
 
 from .utilities import ret_smallest_obj,ret_largest_obj
-
+from . import config
 class bot_localizer():
 
     def __init__(self):
@@ -50,6 +50,7 @@ class bot_localizer():
 
         self.orig_rot = 0
         self.rot_mat = 0
+
 
     @staticmethod
     def ret_rois_boundinghull(rois_mask,cnts):
@@ -130,14 +131,13 @@ class bot_localizer():
 
         # Storing Crop and Rot Parameters required to maintain frame of refrence in the orig image
         self.update_frameofrefrence_parameters(X,Y,W,H,90)
-        
-        cv2.imshow('1a. rois_mask',rois_mask)
-        cv2.imshow('1b. frame_car_remvd',frame_car_remvd)
-        cv2.imshow('1c. Ground_replica',Ground_replica)
-        cv2.imshow('1d. bg_model',self.bg_model)
-        cv2.imshow('2. maze_og',self.maze_og)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()   
+
+        if (config.debug and config.debug_localization):
+            cv2.imshow("1a. rois_mask",rois_mask)
+            cv2.imshow("1b. frame_car_remvd",frame_car_remvd)
+            cv2.imshow("1c. Ground_replica",Ground_replica)
+            cv2.imshow("1d. bg_model",self.bg_model)
+            cv2.imshow("2. maze_og",self.maze_og)
 
     @staticmethod
     def get_centroid(cnt):
@@ -189,8 +189,27 @@ class bot_localizer():
         frame_disp[car_mask>0]  = frame_disp[car_mask>0] + (0,64,0)
         frame_disp[car_circular_mask>0]  = (0,0,255)
 
-        # Displaying Extracted Car_mask and Localized car in frame
-        cv2.imshow("change_mask(Noise Visible)", change_mask) 
-        cv2.imshow("Detected_foreground(car)", car_mask) 
-        cv2.imshow("car_localized", frame_disp)
+
+        if (config.debug and config.debug_localization):
+            cv2.imshow("1d. bg_model",self.bg_model)
+            cv2.imshow("2. maze_og",self.maze_og)
             
+            cv2.imshow("car_localized", frame_disp)
+            cv2.imshow("change_mask(Noise Visible)", change_mask) 
+            cv2.imshow("Detected_foreground(car)", car_mask)
+
+        else:
+            try:
+                cv2.destroyWindow("1d. bg_model")
+                cv2.destroyWindow("2. maze_og")
+                
+                cv2.destroyWindow("car_localized")
+                cv2.destroyWindow("change_mask(Noise Visible)")
+                cv2.destroyWindow("Detected_foreground(car)")
+
+                cv2.destroyWindow("1a. rois_mask")
+                cv2.destroyWindow("1b. frame_car_remvd")
+                cv2.destroyWindow("1c. Ground_replica")
+
+            except:
+                pass
