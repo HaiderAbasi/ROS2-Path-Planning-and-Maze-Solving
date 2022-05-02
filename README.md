@@ -1,7 +1,6 @@
 # Maze Solving using Computer Vision In ROS2
 
-[![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/cover.png)]
-
+[![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/cover.png)](https://youtu.be/Ejl4ZLKo3Cc "Click to Watch Intro Video on Youtube")
 ## Repository contents
 <details open="open">
   <summary>Table of Contents</summary>
@@ -69,6 +68,12 @@ source ~/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/install/setup.bash
   - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/nodes.gif)<br/><br/>
 * **Custom World Setup**<br/><br/>
   - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/world.gif)<br/><br/>
+* **Mapping**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/mapping.gif)<br/><br/>
+* **Path Planning**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/path_planning.gif)<br/><br/>
+* **Maze Solving**<br/><br/>
+  - ![alt text](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/blob/master/images/maze_solving.gif)<br/><br/>
 
 
 ## 🧊 Pre-Course Requirments:
