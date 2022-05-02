@@ -36,6 +36,7 @@ import os
 pygame.mixer.init()
 pygame.mixer.music.load(os.path.abspath('src/maze_bot/resource/aud_chomp.mp3'))
 
+from . import config
 
 class bot_motionplanner():
 
@@ -82,6 +83,10 @@ class bot_motionplanner():
         self.trigger_backpeddling = False
         # [State Variables] Can't reach goal? Try next appropriate one
         self.trigger_nxtpt = False
+
+        self.curr_speed = 0
+        self.curr_angle = 0
+
 
     @staticmethod
     def euler_from_quaternion(x, y, z, w):
@@ -181,7 +186,13 @@ class bot_motionplanner():
         st = "len(path) = ( {} ) , path_iter = ( {} )".format(len(path),self.path_iter)        
         
         frame_disp = cv2.putText(frame_disp, st, (bot_localizer.orig_X+50,bot_localizer.orig_Y-30), cv2.FONT_HERSHEY_PLAIN, 1.2, (0,0,255))
-        cv2.imshow("maze (Shortest Path + Car Loc)",img_shortest_path)
+        if config.debug and config.debug_motionplanning:
+            cv2.imshow("maze (Shortest Path + Car Loc)",img_shortest_path)
+        else:
+            try:
+                cv2.destroyWindow("maze (Shortest Path + Car Loc)")
+            except:
+                pass
 
     @staticmethod
     def angle_n_dist(pt_a,pt_b):
@@ -294,8 +305,10 @@ class bot_motionplanner():
 
         # Setting speed of bot proportional to its distance to the goal
         speed = interp(distance_to_goal,[0,100],[0.2,1.5])
+        self.curr_speed = speed
         # Setting steering angle of bot proportional to the amount of turn it is required to take
         angle = interp(angle_to_turn,[-360,360],[-4,4])
+        self.curr_angle = angle
 
         print("angle to goal = {} Angle_to_turn = {} angle[Sim] {}".format(angle_to_goal,angle_to_turn,abs(angle)))
         print("distance_to_goal = ",distance_to_goal)
