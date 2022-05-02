@@ -29,9 +29,10 @@ This course is focus on Maze Solving behavior of robot In a Simulation based on 
 From our robot to last computer vision Node ,we will create every thing from scratch . Python Object Oriented programming practices will be utilized for better development.
 ## ⚡ Using this Repository
 ----
-<!-- -- #### **Video Demonstration**
-  If the repository is not working for you. Watch the free preview video on our course page Where full explaination is given on setting up this repository.
-[How to Run the Project] -->
+#### **Video Demonstration**
+* If the repository is not working for you. Watch the free preview video on our course page 
+ Where full explaination is given on setting up this repository.Section# 1 -> Lecture#2
+  * **[[How to Run the Project]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/learn/lecture/32067970#overview)**
 #### **Setting Up Package**
  * Clone the repository in you Home folder
 ```
