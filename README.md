@@ -91,7 +91,7 @@ You can access section wise notes here -> **[PDFs](./notes)**
 
 ## 💰 Coupon
 ----
-Udemy Discounted Course Link **[[Discounted Link]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/?couponCode=LAUNCH)**
+Udemy Discounted Course Link **[[Discounted Link]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/?couponCode=GET_1299)**
 
 ## 👤 Instructors
 ---
