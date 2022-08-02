@@ -1,7 +1,7 @@
 ---
 name: Problem Running the Repository!
 about: Use this template, If you have a problem running the repository.
-title: "[Problem Executing the Project] [OS] [Problem in (ROS or CV)]"
+title: "[Problem Executing the Project] (OS) One liner description of the issue."
 labels: help wanted
 assignees: ''
 
@@ -43,5 +43,5 @@ If applicable, add screenshots to help explain your problem.
   - Make-Model (If Any) [e.g. MSI - GF65]
 - GPU [e.g. Nvidia RTX 3060]
 
-**Additional context**
+**Additional context** (Optional)
 Add any other context about the problem here.
