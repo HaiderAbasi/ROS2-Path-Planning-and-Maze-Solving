@@ -29,36 +29,13 @@ This course is focus on Maze Solving behavior of robot In a Simulation based on 
 From our robot to last computer vision Node ,we will create every thing from scratch . Python Object Oriented programming practices will be utilized for better development.
 ## ⚡ Using this Repository
 ----
-#### **Video Demonstration**
-* If the repository is not working for you. Watch the free preview video on our course page 
- Where full explaination is given on setting up this repository.Section# 1 -> Lecture#2
-  * **[[How to Run the Project]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/learn/lecture/32067970#overview)**
-#### **Setting Up Package**
- * Clone the repository in you Home folder
-```
-git clone https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving.git
-```
- * Navigate into your downloaded repository
- ```
-cd /path/to/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws
-```
-* Source your ROS2 installation to build workspaces
-```
-$ source /opt/ros/foxy/setup.bash
-```
-* Perform Colcon Build ( source ~/opt.ros )
-```
-colcon build
-```
-* Source your Workspace in any terminal you open to Run files from this workspace ( Basic thing of ROS2 )
-```
-source ~/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/install/setup.bash
-```
-* (Optional for Power USERs ) Add source to this workspace into bash file
- ```
-  echo "source ~/ROS2-Path-Planning-and-Maze-Solving/path_planning_ws/install/setup.bash" >> ~/.bashrc
- ```
-  **NOTE:** This upper command is going to add the source file path into your ~/.bashrc file ( Only perform it ONCE and you know what you are doing).This will save your time when running things from the Workspace
+
+**Ubuntu-20.04**: 
+- Follow along the [Wiki](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/wiki/Ubuntu-20.04-Setup-Guide) guide to setup the project.
+
+
+**Docker**:
+- Coming Soon...
 
 
 ## ⛲ Features
