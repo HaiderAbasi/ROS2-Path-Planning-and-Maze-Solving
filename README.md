@@ -30,12 +30,14 @@ From our robot to last computer vision Node ,we will create every thing from scr
 ## ⚡ Using this Repository
 ----
 
+**Docker**:
+  1) Windows 10: 
+     - Follow the [guide](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/wiki/Docker-(Windows-10)?fbclid=IwAR3G9uLiEjt0KcytlBIJYFIJ8pJYHPu2cpmSQQ8XKRp-KxoFqdjvMCJNiB4) to setup docker on Windows
+
+
 **Ubuntu-20.04**: 
 - Follow along the [Wiki](https://github.com/HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving/wiki/Ubuntu-20.04-Setup-Guide) guide to setup the project.
 
-
-**Docker**:
-- Coming Soon...
 
 
 ## ⛲ Features
