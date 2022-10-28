@@ -71,17 +71,22 @@ class maze_solver(Node):
         self.vel_subscriber = self.create_subscription(Odometry,'/odom',self.get_bot_speed,10)
         self.bot_speed = 0
         self.bot_turning = 0
-
-        self.sat_view = np.zeros((100,100))
+        self.have_bot_view = False
+        self.bot_view= None
+        self.have_sat_view = False
+        self.sat_view = None
+        #self.sat_view = np.zeros((100,100))
 
         self.debugging = Debugging()
 
     def get_video_feed_cb(self,data):
         frame = self.bridge.imgmsg_to_cv2(data,'bgr8')
         self.sat_view = frame
+        self.have_sat_view = True
     
     def process_data_bot(self, data):
-      self.bot_view = self.bridge.imgmsg_to_cv2(data,'bgr8') # performing conversion
+        self.bot_view = self.bridge.imgmsg_to_cv2(data,'bgr8') # performing conversion
+        self.have_bot_view = True
 
     def get_bot_speed(self,data):
         # We get the bot_turn_angle in simulation Using same method as Gotogoal.py
@@ -212,6 +217,12 @@ class maze_solver(Node):
         
         self.debugging.setDebugParameters()
 
+        #check if sat_view and bot_view are received
+        if self.have_sat_view and self.have_bot_view:
+            print("Time to move!")
+        else:
+            print("waiting for views from the camera...")
+            return
         # Creating frame to display current robot state to user        
         frame_disp = self.sat_view.copy()
         
