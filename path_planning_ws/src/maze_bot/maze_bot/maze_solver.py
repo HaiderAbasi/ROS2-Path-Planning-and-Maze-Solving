@@ -77,12 +77,19 @@ class maze_solver(Node):
         self.debugging = Debugging()
 
     def get_video_feed_cb(self,data):
-        frame = self.bridge.imgmsg_to_cv2(data,'bgr8')
+        try:
+            frame = self.bridge.imgmsg_to_cv2(data,'bgr8')
+        except CvBridgeError as e:
+            print(e)
+            return
         self.sat_view = frame
     
     def process_data_bot(self, data):
-      self.bot_view = self.bridge.imgmsg_to_cv2(data,'bgr8') # performing conversion
-
+        try:
+            self.bot_view = self.bridge.imgmsg_to_cv2(data,'bgr8') # performing conversion
+        except CvBridgeError as e:
+            print(e)
+            return
     def get_bot_speed(self,data):
         # We get the bot_turn_angle in simulation Using same method as Gotogoal.py
         self.bot_speed = -(data.twist.twist.linear.x)
