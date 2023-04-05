@@ -67,6 +67,7 @@ From our robot to last computer vision Node ,we will create every thing from scr
 ## 📗 Notes
 ---
 You can access section wise notes here -> **[PDFs](./notes)**
+- **Computer Vision ->** [**PDFs**](https://drive.google.com/drive/folders/11renHlg9sQuMGml9-ANPKC-R6sBTVSyP?usp=share_link)
 
 
 ## 💰 Coupon
