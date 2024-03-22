@@ -11,6 +11,7 @@
     <li><a href="#Pre-Course-Requirments">🧊Pre-Course Requirments</a></li>
     <li><a href="#Notes">📗 Notes</a></li>
     <li><a href="#Instructors">👤Instructors</a></li>
+    <li><a href="#Star-History">🌟Star History</a></li>
     <li><a href="#Course-Coupon">💰Coupon</a></li>
     <li><a href="#license">📝License</a></li>
   </ol>
@@ -69,10 +70,13 @@ From our robot to last computer vision Node ,we will create every thing from scr
 You can access section wise notes here -> **[PDFs](./notes)**
 - **Computer Vision ->** [**PDFs**](https://drive.google.com/drive/folders/11renHlg9sQuMGml9-ANPKC-R6sBTVSyP?usp=share_link)
 
+## Star History
+---
+[![Star History Chart](https://api.star-history.com/svg?repos=HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving&type=Date)](https://star-history.com/#HaiderAbasi/ROS2-Path-Planning-and-Maze-Solving&Date)
 
 ## 💰 Coupon
 ----
-Udemy Discounted Course Link **[[Discounted Link]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/?couponCode=MAZEBOT)**
+✨ Enroll Now with Special Discount ✨ **[[Discounted Link]](https://www.udemy.com/course/ros2-path-planning-and-maze-solving-with-computer-vision/?couponCode=STARTON)**
 
 ## 👤 Instructors
 ---
